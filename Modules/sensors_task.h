@@ -8,4 +8,6 @@ void ms5611Callback(void);
 void sensorsTaskInit(void);
 void margAcquire(marg_t *marg);
 void gyro_calibrate(vec3f_t* avr_gyr);
+#define I2C_DEV_MS5611 1
+#define I2C_DEV_HMC5883 0
 #endif

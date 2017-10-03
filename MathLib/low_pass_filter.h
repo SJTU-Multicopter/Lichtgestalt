@@ -1,6 +1,6 @@
 #ifndef LOW_PASS_FILTER_H
 #define LOW_PASS_FILTER_H
-#define PI 3.14159265f
+#define PI_MY 3.14159265f
 typedef struct _IIRFilter {
 	float cutoff_freq;
 	float a1;

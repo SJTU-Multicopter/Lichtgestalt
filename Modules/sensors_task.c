@@ -1,4 +1,5 @@
 #include "../Devices/hmc5883l_i2c.h"
+#include "../Devices/ms5611_i2c.h"
 #include "../Devices/mpu6000_spi.h"
 #include "../MathLib/low_pass_filter.h"
 #include "sensors_task.h"
@@ -18,11 +19,13 @@ static vec3i16_t mag_raw;
 static vec3i16_t acc_bias={0,0,0};
 static vec3i16_t gyr_bias={0,0,0};	
 static vec3i16_t mag_bias={0,0,0};//{0,-150,110};
-
+static baro_t baro_data;
 static marg_t marg_data;
+unsigned char curr_i2c_dev;
 static xQueueHandle marg_q;
 static xSemaphoreHandle imuDataReady;
 static bool magDataReady;
+//static bool baroDataReady;
 //extern short data2send[9];
 IIRFilter iir_ax={0.0,0.0,0.0,
 				0.0,0.0,0.0,
@@ -74,6 +77,7 @@ void sensorsTaskInit(void)
 {
 	marg_q = xQueueCreate(1, sizeof(marg_t));
 	imu_IIR_init();
+	baro_data.status = baro_initializing;
 	rom_get_mag_bias(&mag_bias);
 	rom_get_acc_bias(&acc_bias);
 	vSemaphoreCreateBinary( imuDataReady );
@@ -82,16 +86,51 @@ void sensorsTaskInit(void)
 }
 void sensorsTrigerTask( void *pvParameters )
 {
-	uint32_t mag_cnt = 0;
+	uint32_t i2c_cnt = 0;
+	uint32_t baro_cnt = 0;
 	TickType_t xLastWakeTime;
 	const TickType_t timeIncreament = 1;//1ms
 	xLastWakeTime = xTaskGetTickCount();
 	for( ;; ){  
 		mpu6000_dma_start(acc_gyr_spi_rx, 15);
-		mag_cnt ++;
-		if(mag_cnt == 14){
-			mag_cnt = 0;
+		i2c_cnt ++;
+		if(i2c_cnt == 14){
+			i2c_cnt = 0;
 			hmc5883l_dma_start(mag_i2c_rx, 6);
+			curr_i2c_dev = I2C_DEV_HMC5883;
+		}
+		else if(i2c_cnt == 2){
+			curr_i2c_dev = I2C_DEV_MS5611;
+			if(baro_data.status == baro_initializing){
+				if(baro_cnt == 0){
+					ms5611_temp_start();
+				}
+				else{
+					ms5611_pres_start();
+				}
+				baro_cnt = (!baro_cnt) & 1;
+			//	baro_data.i2cStatus = baro_convert;
+			}
+			else{
+				if(baro_cnt == 0){
+					ms5611_temp_start();
+				}
+				else{
+					ms5611_pres_start();
+				}
+				baro_cnt++;
+				if(baro_cnt==5)
+					baro_cnt = 0;
+			}
+		}
+		else if(i2c_cnt == 11){
+			curr_i2c_dev = I2C_DEV_MS5611;
+			ms5611_read_trigger();
+		//	baro_data.i2cStatus = baro_read;
+		}
+		else if(i2c_cnt == 13){
+			curr_i2c_dev = I2C_DEV_MS5611;
+			baroProcess(&baro_data);
 		}
 		vTaskDelayUntil(&xLastWakeTime, timeIncreament); 
 	}  
@@ -188,7 +227,8 @@ void hmc5883lCallback(void)
 }
 void ms5611Callback(void)
 {
-	
+//	if(baro_data.status == 
+//	baroDataReady = true;
 }
 
 void margAcquire(marg_t *marg)

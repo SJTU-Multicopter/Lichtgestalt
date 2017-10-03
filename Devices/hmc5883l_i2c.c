@@ -35,7 +35,7 @@ void hmc5883l_read_all(void)
 */
 void hmc5883l_dma_start(uint8_t *pRxData, uint16_t Size)
 {
-	HAL_I2C_Mem_Read_DMA(&hi2c1, HMC5983_ADDRESS, ADDR_DATA_OUT_X_MSB, I2C_MEMADD_SIZE_8BIT, pRxData, Size);
+	HAL_StatusTypeDef ret = HAL_I2C_Mem_Read_DMA(&hi2c1, HMC5983_ADDRESS, ADDR_DATA_OUT_X_MSB, I2C_MEMADD_SIZE_8BIT, pRxData, Size);
 }
 
 void hmc_fast_init(void)

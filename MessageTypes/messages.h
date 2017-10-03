@@ -17,6 +17,16 @@ typedef struct baro_s {
 	float pressure;
 	float temp;
 	float alt;
+	float offset;
+	float refPressure;
+	enum status2Baro_e {
+		baro_convert = 0,
+		baro_read = 1
+	}i2cStatus;
+	enum statusBaro_e {
+		baro_initializing = 0,//once temp, once pres
+		baro_running = 1//once temp, 5 pres
+	}status;
 } baro_t;
 typedef struct gpsRaw_s {
 	int64_t lat;

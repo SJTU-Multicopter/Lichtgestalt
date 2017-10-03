@@ -3,13 +3,13 @@
 void IIR_set_cutoff_freq(IIRFilter *f, float cutoff_freq, float smpl_freq)
 {
 	float fr = smpl_freq/cutoff_freq;
-    float ohm = tan(PI/fr);
-    float c = 1.0f+2.0f*cos(PI/4.0f)*ohm + ohm*ohm;
+    float ohm = tan(PI_MY/fr);
+    float c = 1.0f+2.0f*cos(PI_MY/4.0f)*ohm + ohm*ohm;
     f->b0 = ohm*ohm/c;
     f->b1 = 2.0f*f->b0;
     f->b2 = f->b0;
     f->a1 = 2.0f*(ohm*ohm-1.0f)/c;
-    f->a2 = (1.0f-2.0f*cos(PI/4.0f)*ohm+ohm*ohm)/c;
+    f->a2 = (1.0f-2.0f*cos(PI_MY/4.0f)*ohm+ohm*ohm)/c;
 }
 //for 25Hz
 //a1=-1.561, a2=0.6414,

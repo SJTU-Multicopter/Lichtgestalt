@@ -4,6 +4,7 @@
 #include "../Modules/sensors_task.h"
 #include "rom.h"
 #include "mpu6000_spi.h"
+extern unsigned char curr_i2c_dev;
 extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
 extern UART_HandleTypeDef huart5;
@@ -14,13 +15,17 @@ void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 	
 	
 }
-
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+}
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	if(hi2c->Instance == hi2c1.Instance){
-		if(hi2c->Devaddress == (0x1E<<1))
+		if(curr_i2c_dev == I2C_DEV_HMC5883)
+	//	if(hi2c->Devaddress == (0x1E<<1))
 			hmc5883lCallback();
-		else if(hi2c->Devaddress == (0x77<<1))
+		else if(curr_i2c_dev == I2C_DEV_MS5611)
+	//	else if(hi2c->Devaddress == (0x77<<1))
 			ms5611Callback();
 	}
 	if(hi2c->Instance == hi2c2.Instance)
