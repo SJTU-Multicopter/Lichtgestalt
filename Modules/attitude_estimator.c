@@ -121,8 +121,8 @@ static void attitude_init_Task( void *pvParameters )
 {
 	#define STD_BLOCK_LEN 25
 	#define AVERAGE_SAMPLES 150//2sec
-	#define ACC_STEADY_STD 50.0f
-	#define GYR_STEADY_STD 50.0f
+	#define ACC_STEADY_STD 0.06f
+	#define GYR_STEADY_STD 0.013f
 	#define MAG_STEADY_STD 50.0f
 	int i;
 	unsigned int p_block = 0;
@@ -201,20 +201,20 @@ static void attitude_update_Task( void *pvParameters )
 		#endif
 		vec3f_t w;
 		int i;
-		float gyro_scale = 7509.9f * 0.5f;
+//		float gyro_scale = 7509.9f * 0.5f;
 		for(i = 0; i<3; i++){
-			w.v[i] = _marg.gyr.v[i] / gyro_scale;
+			w.v[i] = _marg.gyr.v[i];// / gyro_scale;
 		}
 		attitude_update(&w, &_motion_acc, &_marg, &_gyr_bias, &_att, ATT_EST_TASK_PERIOD_S);
 		xQueueOverwrite(att_q, &_att);
-	/*	for(int i=0;i<3;i++){
+		for(int i=0;i<3;i++){
 			data2send[i] = _att.Euler.v[i]*573.0f;
 			data2send[i+3] = _att.rate.v[i]*573.0f;
 		//	data2send[i+6] = 0;//state.Euler.v[i]*573.0f;
-		//	data2send[i+9] = _marg.mag.v[i];
-		//	data2send[i+12] = _marg.acc.v[i];
-		//	data2send[i+15] = _marg.gyr.v[i];
-		}*/
+			data2send[i+9] = _marg.mag.v[i];
+			data2send[i+12] = _marg.acc.v[i]*1000;
+			data2send[i+15] = _marg.gyr.v[i]*1000;
+		}
 	}
 }
 

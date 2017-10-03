@@ -88,9 +88,11 @@ void sensorsTrigerTask( void *pvParameters )
 {
 	uint32_t i2c_cnt = 0;
 	uint32_t baro_cnt = 0;
+	uint32_t baro_init_cnt = 0;
 	TickType_t xLastWakeTime;
 	const TickType_t timeIncreament = 1;//1ms
 	xLastWakeTime = xTaskGetTickCount();
+	baro_data.refPressure = 0;
 	for( ;; ){  
 		mpu6000_dma_start(acc_gyr_spi_rx, 15);
 		i2c_cnt ++;
@@ -131,6 +133,18 @@ void sensorsTrigerTask( void *pvParameters )
 		else if(i2c_cnt == 13){
 			curr_i2c_dev = I2C_DEV_MS5611;
 			baroProcess(&baro_data);
+			if(baro_data.status == baro_initializing){
+				baro_init_cnt++;
+				if(baro_init_cnt>100)
+					baro_data.refPressure += baro_data.pressure;
+				if(baro_init_cnt == 200){
+					baro_data.refPressure /= 100;
+					baro_data.status = baro_running;
+				}
+			}else{
+				
+				
+			}
 		}
 		vTaskDelayUntil(&xLastWakeTime, timeIncreament); 
 	}  
@@ -176,9 +190,9 @@ void acc_process(vec3i16_t* input, vec3f_t* output)
 {
 	//swap, bias, lpf
 	float x,y,z;
-	x = input->x + acc_bias.x;
-	y = -input->y + acc_bias.y;
-	z = -input->z + acc_bias.z;
+	x = (input->x + acc_bias.x)*ACC_SCALE;
+	y = (-input->y + acc_bias.y)*ACC_SCALE;
+	z = (-input->z + acc_bias.z)*ACC_SCALE;
 //	output->x = x;
 //	output->y = y;
 //	output->z = z;
@@ -192,9 +206,9 @@ void gyr_process(vec3i16_t* input, vec3f_t* output)
 {
 	//swap, bias, lpf
 	float x,y,z;
-	x = (input->x + gyr_bias.x);
-	y = (-input->y + gyr_bias.y);
-	z = (-input->z + gyr_bias.z);
+	x = (input->x + gyr_bias.x) / GYR_SCALE;
+	y = (-input->y + gyr_bias.y) / GYR_SCALE;
+	z = (-input->z + gyr_bias.z) / GYR_SCALE;
 //	output->x = x;
 //	output->y = y;
 //	output->z = z;

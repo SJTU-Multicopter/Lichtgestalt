@@ -49,7 +49,7 @@ static void magCalTask(void* param)
 	//malloc cannot provide enough space
 	//not enough stack
 	//and will return NULL pointer
-	float gyro_scale = 7509.9f * 0.5f;
+//	float gyro_scale = 7509.9f * 0.5f;
 	static marg_t marg;
 	vec3f_t mag_bias;
 	vec3i16_t mag_bias_i;
@@ -68,9 +68,9 @@ static void magCalTask(void* param)
 			data2send[i] = mag_bias.v[i];
 			data2send[i+3] = marg.mag.v[i];
 		}*/
-		if(absolute_f(marg.gyr.x/gyro_scale)> ROTATION_THRES|| 
-			absolute_f(marg.gyr.y/gyro_scale)> ROTATION_THRES|| 
-			absolute_f(marg.gyr.z/gyro_scale)> ROTATION_THRES){
+		if(absolute_f(marg.gyr.x)> ROTATION_THRES|| 
+			absolute_f(marg.gyr.y)> ROTATION_THRES|| 
+			absolute_f(marg.gyr.z)> ROTATION_THRES){
 			//take this data down
 			if(vec3f_length(&marg.mag)>MAG_LEN_MIN_THRES){
 				x[mag_store_pt] = marg.mag.x;
@@ -90,8 +90,8 @@ static void magCalTask(void* param)
 					mag_bias_i.z = old_mag_bias.z-mag_bias.z;
 					rom_set_mag_bias(&mag_bias_i);
 					for(int i=0;i<3;i++){
-//						data2send[i] = mag_bias.v[i];
-					//	data2send[i+3] = marg.mag.v[i];
+						data2send[i] = mag_bias.v[i];
+						data2send[i+3] = marg.mag.v[i];
 					}
 					setLed(0, 0, 500);
 					setLed(1, 0, 500);

@@ -87,7 +87,7 @@ float get_altitude(float refPressure, float pressure)
 	float tmp_float, altitude;
 	tmp_float = (pressure / refPressure);
 	tmp_float = pow(tmp_float, 0.190295);
-	altitude = 44330000 * (1.0f - tmp_float);
+	altitude = 44330 * (1.0f - tmp_float);// unit m
 	return altitude;
 }
 void baroProcess(baro_t* baro)

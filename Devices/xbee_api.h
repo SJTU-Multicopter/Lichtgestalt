@@ -87,6 +87,6 @@ unsigned char encode_yaw(unsigned char * data, const att_t* att);
 #define THR_Q 0
 #define THR_F 1.0f
 #define ACC_Q 0
-#define ACC_F 1.0f
-#define ACC_SENS (8192.0f/9.81f)
+#define ACC_F 1000.0f
+
 #endif
