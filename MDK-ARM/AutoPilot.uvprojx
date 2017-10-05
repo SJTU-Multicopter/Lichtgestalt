@@ -841,6 +841,16 @@
               <FileType>1</FileType>
               <FilePath>..\Modules\attitude_controller.c</FilePath>
             </File>
+            <File>
+              <FileName>position_controller.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\position_controller.c</FilePath>
+            </File>
+            <File>
+              <FileName>position_estimator.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\position_estimator.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

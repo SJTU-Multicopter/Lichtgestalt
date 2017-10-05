@@ -51,7 +51,7 @@ unsigned char  api_rx_decode(unsigned char * data, unsigned int pack_len)
 	memcpy(&descriptor, data + 15, 1);
 	return descriptor;
 }
-void decode_cmd_acc(unsigned char * data, unsigned int pack_len, command_t* cmd, vec3f_t* mot_acc)
+void decode_cmd_acc(unsigned char * data, unsigned int pack_len, attCmd_t* cmd, vec3f_t* mot_acc)
 {
 //	[3E,0,api_len,90,	0-3
 //	add_H,H,H,H,	4-7
@@ -79,6 +79,30 @@ void decode_cmd_acc(unsigned char * data, unsigned int pack_len, command_t* cmd,
 	cmd->thrust = (float)thrust / THR_F;
 	for(i=0;i<3;i++)
 		mot_acc->v[i] = (float)acc[i] / ACC_F;
+}
+/*added by Wade*/
+void decode_pos_sp(unsigned char * data, unsigned int pack_len, posCmd_t* cmd)
+{
+	int pos[3];
+	short vel[3], acc[3], yw, e;
+	unsigned int timestamp;
+	memcpy(&timestamp, data + 16, 4);
+	memcpy(pos, data + 20, 12);
+	memcpy(vel, data + 32, 6);
+	memcpy(acc, data + 38, 6);
+	memcpy(&yw, data + 44, 2);
+	memcpy(&e, data + 46, 20);
+	cmd->pos_sp.v[0] = (float)pos[0] / 1000;
+	cmd->pos_sp.v[1] = (float)pos[1] / 1000;
+	cmd->pos_sp.v[2] = (float)pos[2] / 1000;
+	cmd->vel_ff.v[0] = (float)vel[0] / 1000;
+	cmd->vel_ff.v[1] = (float)vel[1] / 1000;
+	cmd->vel_ff.v[2] = (float)vel[2] / 1000;
+	cmd->acc_ff.v[0] = (float)acc[0] / 1000;
+	cmd->acc_ff.v[1] = (float)acc[1] / 1000;
+	cmd->acc_ff.v[2] = (float)acc[2] / 1000;
+	cmd->yaw_sp = yw / YAW_F;
+	cmd->emergency = e;
 }
 void decode_pid(unsigned char * data, unsigned int pack_len, PID_t* PRpid1, PID_t* PRpid2, PID_t* Ypid)
 {
@@ -260,8 +284,8 @@ unsigned char encode_general_18(unsigned char * data, const void * data2send)
 	unsigned int timestamp = xTaskGetTickCount();
 	memcpy(data + 17, &descriptor, 1);
 	memcpy(data + 18, &timestamp, 4);
-	memcpy(data + 22, data2send, 18);
-	return 23;//length from desc to last data
+	memcpy(data + 22, data2send, 36);
+	return 41;//length from desc to last data
 }
 unsigned short crc_update (unsigned short crc, unsigned char data)
 {

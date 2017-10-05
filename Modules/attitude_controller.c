@@ -1,4 +1,5 @@
 #include "attitude_controller.h"
+#include "position_controller.h"
 #include "commander.h"
 #include "../Devices/battery.h"
 #include "attitude_estimator.h"
@@ -26,7 +27,7 @@ PID_t yawPID={0,0,0,0,
 			0.0,0.0};
 
 void attitude_controller(output_t *output, 
-	const att_t *state,const attsp_t *setpoint, float dt)
+	const att_t *state,const attsp_t *attsp, float dt)
 {
 //	int i;
 	float p_e_R_hat[3][3];//measured body to desired body
@@ -40,7 +41,7 @@ void attitude_controller(output_t *output,
 	float e_R[3], e_w[3];
 	float w_sp[3];
 	memcpy(p_R_est,state->R.R,sizeof(p_R_est));
-	memcpy(p_R_sp,setpoint->R.R,sizeof(p_R_sp));
+	memcpy(p_R_sp,attsp->R.R,sizeof(p_R_sp));
 	arm_matrix_instance_f32 e_R_hat = {3,3,(float *)p_e_R_hat};
 	arm_matrix_instance_f32 R_est = {3,3,(float *)p_R_est};
 	arm_matrix_instance_f32 R_sp = {3,3,(float *)p_R_sp};
@@ -69,7 +70,7 @@ void attitude_controller(output_t *output,
 	output->moment.R = internal_err_pid(&rollPID, e_w[0], ATT_CTRL_TASK_PERIOD_S);
 	output->moment.P = internal_err_pid(&pitchPID, e_w[1], ATT_CTRL_TASK_PERIOD_S);
 	output->moment.Y = internal_err_pid(&yawPID, e_w[2], ATT_CTRL_TASK_PERIOD_S);
-	output->thrust = setpoint->thrust;
+	output->thrust = attsp->thrust;
 }
 static void attitude_control_Task( void *pvParameters )
 {
@@ -78,15 +79,9 @@ static void attitude_control_Task( void *pvParameters )
 	while(1) {
 		vTaskDelayUntil(&lastWakeTime, ATT_CTRL_TASK_PERIOD_MS);
 		attAcquire(&_att);
-		setpointAcquire(&_attsp);
+		attspAcquire(&_attsp);
 		attitude_controller(&_output, &_att, &_attsp, ATT_CTRL_TASK_PERIOD_S);
 		xQueueOverwrite(output_q, &_output);
-	/*	for(int i=0;i<3;i++){
-			data2send[i+6] = _output.moment.v[i]*573.0f;//state.Euler.v[i]*573.0f;
-			data2send[i+9] = _output.thrust;
-		//	data2send[i+12] = _marg.acc.v[i];
-		//	data2send[i+15] = _marg.gyr.v[i];
-		}*/
 	}
 }
 void attitude_controller_init(void)

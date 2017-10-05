@@ -77,7 +77,11 @@ static void magCalTask(void* param)
 				y[mag_store_pt] = marg.mag.y;
 				z[mag_store_pt] = marg.mag.z;
 				mag_store_pt++;
-				
+				for(int i=0;i<3;i++){
+					data2send[i] = old_mag_bias.v[i];
+					data2send[i+3] = marg.mag.v[i];
+				}
+				data2send[6]=1;
 				if(mag_store_pt==MAG_STORE){
 					mag_store_pt = 0;
 					sphere_fit_least_squares(x, y, z,
@@ -107,6 +111,12 @@ static void magCalTask(void* param)
 					vTaskDelete(NULL);
 				}
 			}
+			else{
+				data2send[6]=2;
+			}
+		}
+		else{
+			data2send[6]=3;	
 		}
 		
 		tick++;

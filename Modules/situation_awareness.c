@@ -5,7 +5,7 @@
 //retVal: 0x01010101
 //eight bits:
 //0,0,0,on air, on land, at rest, upside down, free fall
-unsigned char situAwareUpdate(attsp_t *setpoint, const marg_t *marg, const att_t *state)
+unsigned char situAwareUpdate(attsp_t *attsp, const marg_t *marg, const att_t *state)
 {
 	unsigned char retVal=0x00;
 	

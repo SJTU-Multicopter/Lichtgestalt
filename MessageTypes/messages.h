@@ -66,10 +66,17 @@ typedef struct pos_s {
 	vec3f_t vel;
 	vec3f_t acc;
 } pos_t;
-typedef struct command_s {
+typedef struct att_command_s {
 	quaternion_t Q;
 	float thrust;
-} command_t;
+} attCmd_t;
+typedef struct pos_command_s {
+	vec3f_t pos_sp;
+	vec3f_t vel_ff;
+	vec3f_t acc_ff;
+	float yaw_sp;
+	short emergency;
+} posCmd_t;
 typedef struct attsp_s {
 	rotation_t R;
 	float thrust;
@@ -87,16 +94,10 @@ typedef struct altCtrlsp_s {
 	vec3f_t euler;
 } altCtrlsp_t;
 typedef struct manuelCtrlsp_s {
-	float throttle;
-	vec3f_t euler;
+	float thrust;
+	quaternion_t Q;
 } manCtrlsp_t;
-typedef struct generalCtrlsp_s {
-	float throttle;
-	vec3f_t euler;
-	vec3f_t pos_sp;
-	vec3f_t vel_ff;
-	vec3f_t acc_ff;
-} generalCtrlsp_t;
+
 typedef struct output_s {
 	vec3f_t moment;
 	float thrust;
@@ -114,7 +115,7 @@ typedef struct agent_s {
 typedef enum modeVehicle_e {
 	modeCal = 0,
 	modeRate,
-	modeAtt,
+	modeMan,
 	modeAlt,
 	modePos,
 	modeTrj
@@ -123,10 +124,16 @@ typedef enum statusLock_e {
 	motorLocked = 0,
 	motorUnlocking,
 	motorUnlocked,
+	motorIdle,
+	motorLocking
 } statusLock_t;
 typedef enum statusFlight_e {
-	stautsLanded = 0,
-	stautsFlying,
+	statusLanded = 0,
+	statusInitiating,
+	statusTakingoff,
+	statusLanding,
+	statusFlying,
+	statusHovering,
 	stautsFreefall,
 	stautsUpsidedown,
 	stautsTumble

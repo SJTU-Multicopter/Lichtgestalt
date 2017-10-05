@@ -10,6 +10,8 @@
 #include "motor_mixer.h"
 #include "sensors_calibration.h"
 #include "task_manager.h"
+#include "position_controller.h"
+#include "position_estimator.h"
 
 #include "../Commons/platform.h"
 #include "../MessageTypes/type_methods.h"
@@ -30,16 +32,7 @@ statusLock_t g_statusLock;
 statusFlight_t g_statusFlight;
 statusRC_t g_statusRC;
 statusGS_t g_statusGS;
-/*
-static marg_t _marg;
-static att_t _att;
-static output_t _output;
-static attsp_t _setpoint;
-static vec3f_t _motion_acc;
-static vec3f_t _euler_sp;
 
-static command_t _command;
-*/
 //static battery_t _bat;
 static void managerTask(void* param);
 //static void managerInitTask(void* param);
@@ -49,8 +42,13 @@ void taskManagerInit(void)
 		g_mode = modeCal;
 	}
 	else{
-		g_mode = modeAtt;
+		#if INDOOR
+		g_mode = modeMan;
+		#elif OUTDOOR
+		g_mode = modePos;
+		#endif
 	}
+	g_statusFlight = statusInitiating;
 	g_statusLock = motorLocked;
 	motor_init();
 	motor_cut();
@@ -71,24 +69,27 @@ void taskManagerInit(void)
 	
 //	motor_mixer_init();
 	
-	if(g_mode == modeAtt){
-		
+	if(g_mode == modeMan ||  g_mode == modePos){
 		commanderInit();
-		
 		attitude_init();
 		start_manager();
+		position_controller_queue_init();
+		position_estimation_queue_init();
 	}
 	else if(g_mode == modeCal){
 		calibration_manager_init();
 		data_send_start();
 	}
-	
 }
 void attitude_initialized_callback(att_t * att)
 {
-	attsp_reset(att);
+//	attsp_reset(att);
+	g_statusFlight = statusLanded;
 	attitude_estimator_start();
+	position_estimation_start();
+	position_controller_init(att);
 	attitude_controller_init();
+	
 	motor_mixer_init();
 	
 }
@@ -118,7 +119,7 @@ static void managerTask(void* param)
 			but_cnt++;
 		else
 			but_cnt = 0;
-		if(but_cnt == 25 && g_mode == modeAtt){
+		if(but_cnt == 25 && g_mode != modeCal){
 			if(g_statusLock == motorLocked)
 				g_statusLock = motorUnlocking;
 			else if(g_statusLock == motorUnlocked||g_statusLock == motorUnlocking)

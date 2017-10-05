@@ -191,8 +191,8 @@ void acc_process(vec3i16_t* input, vec3f_t* output)
 	//swap, bias, lpf
 	float x,y,z;
 	x = (input->x + acc_bias.x)*ACC_SCALE;
-	y = (-input->y + acc_bias.y)*ACC_SCALE;
-	z = (-input->z + acc_bias.z)*ACC_SCALE;
+	y = (input->y + acc_bias.y)*ACC_SCALE;
+	z = (input->z + acc_bias.z)*ACC_SCALE;
 //	output->x = x;
 //	output->y = y;
 //	output->z = z;
@@ -207,8 +207,8 @@ void gyr_process(vec3i16_t* input, vec3f_t* output)
 	//swap, bias, lpf
 	float x,y,z;
 	x = (input->x + gyr_bias.x) / GYR_SCALE;
-	y = (-input->y + gyr_bias.y) / GYR_SCALE;
-	z = (-input->z + gyr_bias.z) / GYR_SCALE;
+	y = (input->y + gyr_bias.y) / GYR_SCALE;
+	z = (input->z + gyr_bias.z) / GYR_SCALE;
 //	output->x = x;
 //	output->y = y;
 //	output->z = z;
@@ -221,11 +221,12 @@ void mag_process(vec3i16_t* input, vec3f_t* output)
 	//swap, bias
 	float x,y,z;
 	x = -input->x + mag_bias.x;
-	y = -input->z + mag_bias.y;
-	z = input->y + mag_bias.z;
+	y = input->z + mag_bias.y;
+	z = -input->y + mag_bias.z;
 	output->x = x;
 	output->y = y;
 	output->z = z;
+
 }
 void mpu6000Callback(void)
 {

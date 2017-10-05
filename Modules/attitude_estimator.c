@@ -34,9 +34,9 @@ bool judge_steady(float* block, unsigned int len, float threshold)
 	else
 		return false;
 }
-void attitude_reset(const vec3f_t* acc, const vec3f_t* mag, att_t* stateAtt)
+void attitude_reset(const vec3f_t* acc, const vec3f_t* mag, att_t* att)
 {
-	float xh,yh;
+/*	float xh,yh;
 	float pitch,roll,yaw; 
 	for(int i = 0; i<3; i++)
 		_gyr_bias.v[i] = 0;
@@ -56,8 +56,24 @@ void attitude_reset(const vec3f_t* acc, const vec3f_t* mag, att_t* stateAtt)
 	stateAtt->rate.R = 0;
 	stateAtt->rate.P = 0;
 	stateAtt->rate.Y = 0;
-	euler2quaternion(&stateAtt->Euler, &stateAtt->Q);
-	quaternion2rotation(&stateAtt->Q, &stateAtt->R);
+	*/
+	vec3f_t k, I, J;
+	float mag_dot_k;
+	for (int i = 0; i < 3; i++) 
+		k.v[i] = -acc->v[i];
+	vec3f_normalize(&k);
+	mag_dot_k = vec3f_dot(mag, &k);
+	for (int i = 0; i < 3; i++) 
+		I.v[i] = mag->v[i] - mag_dot_k * k.v[i];
+	vec3f_normalize(&I);
+	vec3f_cross(&k, &I, &J);
+	for (int i = 0; i < 3; i++) {
+		att->R.R[0][i] = I.v[i];
+		att->R.R[1][i] = J.v[i];
+		att->R.R[2][i] = k.v[i];
+	}
+	euler2quaternion(&att->Euler, &att->Q);
+	quaternion2rotation(&att->Q, &att->R);
 }
 void attitude_update(const vec3f_t *gyr, const vec3f_t *pos_acc, const marg_t *marg, vec3f_t *gyr_bias, att_t *state, float dt)
 {
@@ -78,7 +94,7 @@ void attitude_update(const vec3f_t *gyr, const vec3f_t *pos_acc, const marg_t *m
 		vec3f_t mag_err_body;
 		vec3f_t mag_earth;
 		body2earth(&state->R, &marg->mag, &mag_earth, 3);
-		mag_err_earth.z = atan2f(mag_earth.x, mag_earth.y);
+		mag_err_earth.z = -atan2f(mag_earth.x, mag_earth.y);
 		mag_err_earth.x = 0;
 		mag_err_earth.y = 0;
 		if (spinRate > fifty_dps) 
@@ -95,7 +111,7 @@ void attitude_update(const vec3f_t *gyr, const vec3f_t *pos_acc, const marg_t *m
 		for(i=0;i<3;i++)
 			grav_acc.v[i] = marg->acc.v[i]-pos_acc->v[i];
 		vec3f_normalize(&grav_acc);
-		vec3f_cross(&grav_acc, &k, &acc_err);
+		vec3f_cross(&k, &grav_acc, &acc_err);
 		for(i=0;i<3;i++)
 			corr.v[i] += acc_err.v[i] * w_acc;
 	}
@@ -197,7 +213,9 @@ static void attitude_update_Task( void *pvParameters )
 		vTaskDelayUntil(&lastWakeTime, ATT_EST_TASK_PERIOD_MS);
 		margAcquire(&_marg);
 		#if XBEE_API
+		#if INDOOR
 		xbee_motionAccAcquire(&_motion_acc);
+		#endif
 		#endif
 		vec3f_t w;
 		int i;

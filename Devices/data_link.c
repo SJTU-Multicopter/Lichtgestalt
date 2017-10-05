@@ -24,12 +24,14 @@ short data2send[18];
 
 unsigned int dest_addr_h = 0x00A21300;
 unsigned int dest_addr_l = 0x616D4E41;
-
+//unsigned int dest_addr_l = 0xBE6D4E41;
 #if XBEE_API
-static xQueueHandle command_q;
+static xQueueHandle att_cmd_q;
+static xQueueHandle pos_cmd_q;
 static xQueueHandle motion_acc_q;
 static xQueueHandle cal_q;
-static command_t command;
+static attCmd_t att_cmd;
+static posCmd_t pos_cmd;
 static vec3f_t motion_acc;
 static calib_t cal;
 static att_t att;
@@ -44,7 +46,8 @@ void data_link_init(void)
 	__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);
 	#if XBEE_API
 	xTaskCreate( vDataReceiveTask, "Receive", configMINIMAL_STACK_SIZE, NULL, XBEE_RX_TASK_PRI, NULL );  	
-	command_q = xQueueCreate(1, sizeof(command_t));
+	att_cmd_q = xQueueCreate(1, sizeof(attCmd_t));
+	pos_cmd_q = xQueueCreate(1, sizeof(posCmd_t));
 	motion_acc_q = xQueueCreate(1, sizeof(vec3f_t));
 	cal_q = xQueueCreate(1, sizeof(calib_t));
 	#endif
@@ -70,7 +73,7 @@ void vDataSendTask( void *pvParameters )
 	#if XBEE_TRANS
 	const TickType_t timeIncreament = 100;
 	#elif XBEE_API
-	const TickType_t timeIncreament = 500;
+	const TickType_t timeIncreament = 200;
 	#endif
 	xLastWakeTime = xTaskGetTickCount();
 	for( ;; ){
@@ -105,9 +108,15 @@ void vDataReceiveTask( void *pvParameters )
 					switch(descriptor){
 						case DSCR_CMD_ACC:{
 							setLed(2,250,250);
-							decode_cmd_acc(decoding_buffer, rx_len, &command, &motion_acc);
-							xQueueOverwrite(command_q, &command);
+							decode_cmd_acc(decoding_buffer, rx_len, &att_cmd, &motion_acc);
+							xQueueOverwrite(att_cmd_q, &att_cmd);
 							xQueueOverwrite(motion_acc_q, &motion_acc);	
+						}
+						break;
+						case DSCR_POSCTL:{
+							setLed(2,250,250);
+							decode_pos_sp(decoding_buffer, rx_len, &pos_cmd);
+							xQueueOverwrite(pos_cmd_q, &pos_cmd);
 						}
 						break;
 						case DSCR_CAL:{
@@ -152,7 +161,8 @@ void send_data(void *data)
 			pid_ack = false;
 		}
 		else{
-			content_len = encode_yaw(tx_buffer, &att);
+//			content_len = encode_yaw(tx_buffer, &att);
+			content_len = encode_general_18(tx_buffer, data);
 		}
 		api_tx_encode(tx_buffer, dest_addr_h, dest_addr_l);
 		api_pack_encode(tx_buffer, content_len+14);
@@ -175,9 +185,17 @@ void xbee_calibrationAcquire(calib_t *cal)
 {
 	xQueuePeek(cal_q, cal, 0);
 }
-void xbee_commandBlockingAcquire(command_t *cmd)
+void xbee_commandBlockingAcquire(attCmd_t *cmd)
 {
-	xQueueReceive(command_q, cmd, portMAX_DELAY);
+	xQueueReceive(att_cmd_q, cmd, portMAX_DELAY);
+}
+void xbee_outdoor_commandAcquire(posCmd_t *cmd)//added by Wade
+{
+	xQueuePeek(pos_cmd_q, cmd, 0);
+}
+void xbee_outdoor_commandBlockingAcquire(posCmd_t *cmd)//added by Wade
+{
+	xQueueReceive(pos_cmd_q, cmd, portMAX_DELAY);
 }
 #endif
 void DataLinkReceive_IDLE(void)
