@@ -8,10 +8,10 @@
 #define AIRFRAME_LICHT160 1
 #if AIRFRAME_LICHT160
 	#define THRCMDRATIO 1
-	#define VEHICLE_MASS 220
+	#define VEHICLE_MASS 0.25f
 	#define ROTOR_DIST 160//mm
 	#define ONE_2_ROTOR_DIST 3.125f//1/(2*d)
-	#define D2_SQRT2 226//(2*D)/SQRT2_2D
+//	#define D2_SQRT2 226//(2*D)/SQRT2_2D
 	#define FORCE_TORQUE_RATIO 15
 	#define ONE_4_F_T_RATIO 16.67f
 	#define PLUS 1
@@ -20,8 +20,6 @@
 #endif
 /******Sensors Used*****/
 #define IMU_MPU6000 1
-#define GPS_M8N 0
-#define GPS_LEA6H 0
 
 #define COMPASS_HMC 1
 
@@ -31,8 +29,8 @@
 /******Driver Options*****/
 
 /******Devices Options*****/
-#define XBEE_API 1
-#define XBEE_TRANS 0
+#define XBEE_API 0
+#define XBEE_TRANS 1
 #define CMD_SBUS 0
 #define CMD_PPM 0
 #define CMD_XBEE 1
@@ -58,6 +56,10 @@
 #if OUTDOOR
 	#define M8N_GPS 1
 #endif
+
+#define XBEE_SENS_ATT 1
+#define XBEE_POS 0
+#define XBEE_OTHERS 0
 
 
 #define FREQ_1000HZ 1

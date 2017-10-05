@@ -5,8 +5,9 @@
 #include "attitude_estimator.h"
 #include "../Mathlib/comparison.h"
 #include "cmsis_os.h"
+#include "../Commons/platform.h"
 #define POS_CTRL_TASK_STACKSIZE (3 * configMINIMAL_STACK_SIZE)
-#define POS_CTRL_TASK_PRI 4
+#define POS_CTRL_TASK_PRI 2
 #define POS_CTRL_TASK_PERIOD_MS 4
 #define POS_CTRL_TASK_PERIOD_S 0.004f
 #define POS_CTRL_TASK_FREQ 250
@@ -18,7 +19,7 @@
 #define ACC_FF_P 1.0f
 
 #define GRAVITY 9.81f
-#define VEHICLE_MASS 1.289f
+//#define VEHICLE_MASS 1.289f
 #define TILT_MAX 1.0f
 #define THR_MIN 4.0f
 //#define TILT_COS_MAX 0.3f
@@ -216,7 +217,7 @@ static void position_control_Task( void *pvParameters )
 			position_controller(&_pos, &_att, &_possp, &_attsp, POS_CTRL_TASK_PERIOD_S);
 		}
 
-//		_attsp.timestamp = xTaskGetTickCount();
+		_attsp.timestamp = xTaskGetTickCount();
 		xQueueOverwrite(attsp_q, &_attsp);
 //	}
 	}

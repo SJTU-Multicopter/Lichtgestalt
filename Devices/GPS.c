@@ -1,7 +1,6 @@
 #include "GPS.h"
 #include "../Modules/commons.h"
 #include "../Commons/platform.h"
-#include "../Commons/types.h"
 #include "string.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
@@ -385,14 +384,16 @@ void GPSTask( void *pvParameters )
 			data2send[1] = buf2read_num;
 		*/	
 			get_gps_data();
+			gps.timestamp = xTaskGetTickCount ();
 			xQueueOverwrite(gps_q,&gps);
 		}
 //		vTaskDelayUntil( &xLastWakeTime, timeIncreament );  
 	}  
 }
-BaseType_t gps_acquire(gpsRaw_t *gps_data)
+void gps_acquire(gpsRaw_t *gps_data)
 {
-	BaseType_t pdres=pdFALSE;
-	pdres = xQueuePeek(gps_q,gps_data,100);
-	return pdres;
+//	BaseType_t pdres=pdFALSE;
+//	pdres = 
+	xQueuePeek(gps_q,gps_data,100);
+//	return pdres;
 }

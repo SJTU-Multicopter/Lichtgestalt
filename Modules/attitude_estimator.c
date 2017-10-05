@@ -56,6 +56,8 @@ void attitude_reset(const vec3f_t* acc, const vec3f_t* mag, att_t* att)
 	stateAtt->rate.R = 0;
 	stateAtt->rate.P = 0;
 	stateAtt->rate.Y = 0;
+	euler2quaternion(&att->Euler, &att->Q);
+	quaternion2rotation(&att->Q, &att->R);
 	*/
 	vec3f_t k, I, J;
 	float mag_dot_k;
@@ -72,8 +74,9 @@ void attitude_reset(const vec3f_t* acc, const vec3f_t* mag, att_t* att)
 		att->R.R[1][i] = J.v[i];
 		att->R.R[2][i] = k.v[i];
 	}
-	euler2quaternion(&att->Euler, &att->Q);
-	quaternion2rotation(&att->Q, &att->R);
+	rotation2quaternion(&att->R, &att->Q);
+	rotation2euler(&att->R, &att->Euler);
+	
 }
 void attitude_update(const vec3f_t *gyr, const vec3f_t *pos_acc, const marg_t *marg, vec3f_t *gyr_bias, att_t *state, float dt)
 {
@@ -94,7 +97,7 @@ void attitude_update(const vec3f_t *gyr, const vec3f_t *pos_acc, const marg_t *m
 		vec3f_t mag_err_body;
 		vec3f_t mag_earth;
 		body2earth(&state->R, &marg->mag, &mag_earth, 3);
-		mag_err_earth.z = -atan2f(mag_earth.x, mag_earth.y);
+		mag_err_earth.z = -atan2f(mag_earth.y, mag_earth.x);
 		mag_err_earth.x = 0;
 		mag_err_earth.y = 0;
 		if (spinRate > fifty_dps) 
@@ -224,15 +227,21 @@ static void attitude_update_Task( void *pvParameters )
 			w.v[i] = _marg.gyr.v[i];// / gyro_scale;
 		}
 		attitude_update(&w, &_motion_acc, &_marg, &_gyr_bias, &_att, ATT_EST_TASK_PERIOD_S);
+		_att.timestamp = xTaskGetTickCount ();
 		xQueueOverwrite(att_q, &_att);
+		#if XBEE_SENS_ATT
+		baro_t baro;
+		baroAcquire(&baro);
 		for(int i=0;i<3;i++){
 			data2send[i] = _att.Euler.v[i]*573.0f;
 			data2send[i+3] = _att.rate.v[i]*573.0f;
-		//	data2send[i+6] = 0;//state.Euler.v[i]*573.0f;
+			
 			data2send[i+9] = _marg.mag.v[i];
 			data2send[i+12] = _marg.acc.v[i]*1000;
 			data2send[i+15] = _marg.gyr.v[i]*1000;
 		}
+		data2send[6] = baro.alt*1000;//state.Euler.v[i]*573.0f;
+		#endif
 	}
 }
 

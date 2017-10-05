@@ -56,6 +56,11 @@ int map_projection_project(const struct map_projection_reference_s *ref, double 
 
 static void position_estimation( void *pvParameters )
 {
+	baro_t  baro;
+	att_t att;
+	marg_t imu;
+	gpsRaw_t gps_data;
+	
 	uint32_t lastWakeTime = 0;
 	lastWakeTime = xTaskGetTickCount ();
 	while(1)
@@ -63,12 +68,16 @@ static void position_estimation( void *pvParameters )
 		vTaskDelayUntil(&lastWakeTime, POS_EST_TASK_PERIOD_MS);
 		uint32_t t = xTaskGetTickCount();
 		pos_t local_pos;
+		margAcquire(&imu);
+		attAcquire(&att);
+		baroAcquire(&baro);
+		gps_acquire(&gps_data);
 		for(int i=0;i<3;i++){
 			local_pos.acc.v[i] = 0;
 			local_pos.vel.v[i] = 0;
 			local_pos.pos.v[i] = 0;
 		}
-		
+		local_pos.timestamp = xTaskGetTickCount ();
 		xQueueOverwrite(pos_q, &local_pos);
 //		marg_acquire(&imu);
 //		attAcquire(&att);
@@ -78,7 +87,7 @@ static void position_estimation( void *pvParameters )
 }
 void position_estimation_start(void)
 {
-	xTaskCreate(position_estimation, "position_estimation", 1200, NULL, 1, NULL);
+	xTaskCreate(position_estimation, "position_estimation", 1200, NULL, 2, NULL);
 }
 void position_estimation_queue_init(void)
 {
@@ -87,7 +96,7 @@ void position_estimation_queue_init(void)
 BaseType_t posAcquire(pos_t *pos)
 {
 	BaseType_t pdres=pdFALSE;
-//	pdres = xQueuePeek(pos_q, pos, 0);
+	pdres = xQueuePeek(pos_q, pos, 0);
 	return pdres;
 }
 BaseType_t posBlockingAcquire(pos_t *pos)

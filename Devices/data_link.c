@@ -109,13 +109,16 @@ void vDataReceiveTask( void *pvParameters )
 						case DSCR_CMD_ACC:{
 							setLed(2,250,250);
 							decode_cmd_acc(decoding_buffer, rx_len, &att_cmd, &motion_acc);
+							att_cmd.timestamp = xTaskGetTickCount ();
 							xQueueOverwrite(att_cmd_q, &att_cmd);
+						//	.timestamp = xTaskGetTickCount ();
 							xQueueOverwrite(motion_acc_q, &motion_acc);	
 						}
 						break;
 						case DSCR_POSCTL:{
 							setLed(2,250,250);
 							decode_pos_sp(decoding_buffer, rx_len, &pos_cmd);
+							pos_cmd.timestamp = xTaskGetTickCount ();
 							xQueueOverwrite(pos_cmd_q, &pos_cmd);
 						}
 						break;
@@ -123,6 +126,7 @@ void vDataReceiveTask( void *pvParameters )
 							decode_calibrate(decoding_buffer, rx_len, &cal);
 							rom_set_mag_bias(&cal.mag_bias);
 							rom_set_acc_bias(&cal.acc_bias);
+							cal.timestamp = xTaskGetTickCount ();
 							xQueueOverwrite(cal_q, &cal);
 						}
 						break;

@@ -66,6 +66,7 @@ void vSbusTask( void *pvParameters )
 				for(i=0;i<16;i++){
 					rc.channels[i] -= 1024;
 				}
+				rc.timestamp = xTaskGetTickCount ();
 				xQueueOverwrite(rc_q, &rc);
 				
 			}

@@ -1,7 +1,8 @@
 #ifndef GPS_H
 #define GPS_H
+#include "../MessageTypes/type_methods.h"
 void GPSInit(void);
-
+void gps_acquire(gpsRaw_t *gps_data);
 void GPSReceive_IDLE(void);
 
 struct _gps{

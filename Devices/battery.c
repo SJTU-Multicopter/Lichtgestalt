@@ -43,6 +43,7 @@ void vAdcTask(void *pvParameters)
 		bat.voltage = battery_get_voltage();
 		if(g_mode != modeCal && bat.voltage < BAT_WARNING)
 			setLed(1, 300, 1000);
+		bat.timestamp = xTaskGetTickCount ();
 		xQueueOverwrite(bat_q, &bat);
 		vTaskDelayUntil( &xLastWakeTime, timeIncreament ); 
 		battery_meas_start();

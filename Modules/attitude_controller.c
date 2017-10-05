@@ -81,6 +81,7 @@ static void attitude_control_Task( void *pvParameters )
 		attAcquire(&_att);
 		attspAcquire(&_attsp);
 		attitude_controller(&_output, &_att, &_attsp, ATT_CTRL_TASK_PERIOD_S);
+		_output.timestamp = xTaskGetTickCount ();
 		xQueueOverwrite(output_q, &_output);
 	}
 }

@@ -23,6 +23,7 @@ static baro_t baro_data;
 static marg_t marg_data;
 unsigned char curr_i2c_dev;
 static xQueueHandle marg_q;
+static xQueueHandle baro_q;
 static xSemaphoreHandle imuDataReady;
 static bool magDataReady;
 //static bool baroDataReady;
@@ -76,6 +77,7 @@ void imu_IIR_init(void)
 void sensorsTaskInit(void)
 {
 	marg_q = xQueueCreate(1, sizeof(marg_t));
+	baro_q = xQueueCreate(1, sizeof(baro_t));
 	imu_IIR_init();
 	baro_data.status = baro_initializing;
 	rom_get_mag_bias(&mag_bias);
@@ -142,7 +144,8 @@ void sensorsTrigerTask( void *pvParameters )
 					baro_data.status = baro_running;
 				}
 			}else{
-				
+				baro_data.timestamp = xTaskGetTickCount ();
+				xQueueOverwrite(baro_q, &baro_data);
 				
 			}
 		}
@@ -174,6 +177,7 @@ void sensorsProcessTask( void *pvParameters )
 				mag_process(&mag_raw, &(marg_data.mag));
 				marg_data.mag_updated = true;
 			}
+			marg_data.timestamp = xTaskGetTickCount ();
 			xQueueOverwrite(marg_q, &marg_data);
 			marg_data.mag_updated = false;
 		}
@@ -249,4 +253,8 @@ void ms5611Callback(void)
 void margAcquire(marg_t *marg)
 {
 	xQueuePeek(marg_q, marg, 0);
+}
+void baroAcquire(baro_t *baro)
+{
+	xQueuePeek(baro_q, baro, 0);
 }

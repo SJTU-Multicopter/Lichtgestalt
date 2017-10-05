@@ -88,10 +88,12 @@ void commanderTask( void *pvParameters )
 		if(g_mode == modeMan){
 			xbee_commandBlockingAcquire(&att_cmd);
 			xbee_attCmd2manCtrlsp(&mansp, &att_cmd);
+			mansp.timestamp = xTaskGetTickCount ();
 			xQueueOverwrite(mansp_q, &mansp);
 		}
 		else if (g_mode == modePos){
 			xbee_outdoor_commandBlockingAcquire(&pos_cmd);//rewriten by Wade
+			pos_cmd.timestamp = xTaskGetTickCount ();
 			xbee_posCmd2posSp(&possp,&pos_cmd);
 			xQueueOverwrite(possp_q, &possp);
 		}

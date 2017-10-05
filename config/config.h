@@ -12,9 +12,9 @@
 //#define FREERTOS_MCU_CLOCK_HZ   168000000
 
 
-#define ATT_EST_TASK_PRI 2
+#define ATT_EST_TASK_PRI 3
 #define ATT_CTRL_TASK_PRI 3
-#define MANAGER_TASK_PRI 4
+#define MANAGER_TASK_PRI 2
 #define MOTORMIX_TASK_PRI 4
 // Task priorities. Higher number higher priority
 #define MPU_TASK_PRI 5
