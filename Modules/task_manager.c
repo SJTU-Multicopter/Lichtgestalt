@@ -72,7 +72,7 @@ void taskManagerInit(void)
 	if(g_mode == modeMan ||  g_mode == modePos){
 		commanderInit();
 		attitude_init();
-		start_manager();
+		
 		position_controller_queue_init();
 		position_estimation_queue_init();
 	}
@@ -85,7 +85,9 @@ void attitude_initialized_callback(att_t * att)
 {
 //	attsp_reset(att);
 	g_statusFlight = statusLanded;
+	start_manager();
 	attitude_estimator_start();
+	acc_filter_start();
 	position_estimation_start();
 	position_controller_init(att);
 	attitude_controller_init();

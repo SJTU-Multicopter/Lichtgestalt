@@ -335,10 +335,14 @@ void get_gps_data(void)//read the data we want in gps_buffer[160]
 					}
 					break;
 				case 7://velocity Knots
-					gps.vel=char_to_float(string)*514.4f;//atof(string)*514.4f;//char_to_float(string)*514.4f;//1 knot = 0.5144m/s = 514.4mm/s
+					gps.vel=char_to_float(string)*0.5144f;//atof(string)*514.4f;//char_to_float(string)*514.4f;//1 knot = 0.5144m/s = 514.4mm/s
 					break;
 				case 8://azimuth deg			
-					gps.azm=char_to_float(string) * DEG2RAD;;//atof(string) * DEG2RAD;//char_to_float(string) * DEG2RAD;
+					gps.azm=char_to_float(string);// * DEG2RAD;;//atof(string) * DEG2RAD;//char_to_float(string) * DEG2RAD;
+					if(gps.azm != 0)
+						gps.vel_valid = true;
+					else
+						gps.vel_valid = false;
 					break;
 				default:
 					break;

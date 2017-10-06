@@ -85,6 +85,7 @@ typedef struct pos_s {
 	vec3f_t pos;
 	vec3f_t vel;
 	vec3f_t acc;
+	bool xy_valid;
 } pos_t;
 typedef struct att_command_s {
 	uint32_t timestamp;

@@ -57,8 +57,8 @@
 	#define M8N_GPS 1
 #endif
 
-#define XBEE_SENS_ATT 1
-#define XBEE_POS 0
+#define XBEE_SENS_ATT 0
+#define XBEE_POS 1
 #define XBEE_OTHERS 0
 
 

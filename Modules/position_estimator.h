@@ -10,8 +10,8 @@
 
 #define CONSTANTS_ONE_G					9.80665f		/* m/s^2		*/
 #define CONSTANTS_RADIUS_OF_EARTH			6371000.0f			/* meters (m)		*/
-#define M_DEG_TO_RAD 	0.01745329251994
-#define M_RAD_TO_DEG 	57.2957795130823
+#define M_DEG_TO_RAD 	0.01745329251994f
+#define M_RAD_TO_DEG 	57.2957795130823f
 #define M_DEG_TO_RAD_F 	0.01745329251994f
 #define M_RAD_TO_DEG_F 	57.2957795130823f
 
@@ -40,7 +40,7 @@ struct home_position_s {
 void inertial_filter_predict(float dt, float x[2], float acc);
 void inertial_filter_correct(float e, float dt, float x[2], int i, float w);
 
-//void acc_calibrate(const vec3f_t* acc,const rotation_t* R);
+void acc_calibrate(const vec3f_t* acc,const rotation_t* R);
 BaseType_t posAcquire(pos_t *pos);
 BaseType_t posBlockingAcquire(pos_t *pos);
 BaseType_t globalposAcquire(pos_t *pos);

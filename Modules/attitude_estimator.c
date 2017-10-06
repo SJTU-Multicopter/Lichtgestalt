@@ -1,4 +1,5 @@
 #include "attitude_estimator.h"
+#include "position_estimator.h"
 #include "../Commons/platform.h"
 #include "../MessageTypes/type_methods.h"
 #include "../Mathlib/comparison.h"
@@ -197,6 +198,9 @@ static void attitude_init_Task( void *pvParameters )
 					avr_mag.v[i] /= AVERAGE_SAMPLES;
 				}
 				attitude_reset(&avr_acc, &avr_mag, &_att);
+				vec3f_t acc_offset_ned;
+				body2earth(&_att.R, &avr_acc, &acc_offset_ned, 3);
+				acc_calibrate(&acc_offset_ned, &_att.R);
 				gyro_calibrate(&avr_gyr);
 				
 			//	stabilizerReady2Fly();
