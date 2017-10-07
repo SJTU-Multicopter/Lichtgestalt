@@ -21,6 +21,7 @@ unsigned char decoding_buffer[RX_BUF_SIZE];
 static unsigned int rx_len;
 static unsigned char buffer_num=0;
 static unsigned char buf2read_num=0;
+static unsigned int data_receive_refresh = 100;
 short data2send[18];
 
 unsigned int dest_addr_h = 0x00A21300;
@@ -80,7 +81,21 @@ void vDataSendTask( void *pvParameters )
 	xLastWakeTime = xTaskGetTickCount();
 	for( ;; ){
 		send_data(data2send);
-		setLed(2,0,250);
+		
+		data_receive_refresh ++;
+		if(data_receive_refresh > 3000/timeIncreament){
+			setLed(2,250,250);
+			if(pos_cmd.commands == 2){
+				g_statusLink = link_broken_in_air;
+			}else{
+				setLed(2,0,250);
+				g_statusLink = link_idle;
+			}
+		}
+		else{
+			setLed(2,150,250);
+			g_statusLink = link_running;
+		}
 		vTaskDelayUntil( &xLastWakeTime, timeIncreament ); 
 	}  
 }
@@ -90,7 +105,7 @@ void vDataReceiveTask( void *pvParameters )
 	unsigned char api_id;
 	for( ;; ){  
 		if (pdTRUE == xSemaphoreTake(dataReceived, portMAX_DELAY)){
-		
+			
 			if(buf2read_num == 0)
 				memcpy(decoding_buffer,rx_buffer0,rx_len);
 			else
@@ -106,10 +121,11 @@ void vDataReceiveTask( void *pvParameters )
 				}
 				break;
 				case API_ID_RX_PACK:{
+					data_receive_refresh = 0;
 					unsigned char descriptor = api_rx_decode(decoding_buffer, rx_len);
 					switch(descriptor){
 						case DSCR_CMD_ACC:{
-							setLed(2,250,250);
+						//	setLed(2,250,250);
 							decode_cmd_acc(decoding_buffer, rx_len, &att_cmd, &motion_acc);
 							att_cmd.timestamp = xTaskGetTickCount ();
 							xQueueOverwrite(att_cmd_q, &att_cmd);
@@ -118,7 +134,7 @@ void vDataReceiveTask( void *pvParameters )
 						}
 						break;
 						case DSCR_POSCTL:{
-							setLed(2,250,250);
+						//	setLed(2,250,250);
 							decode_pos_sp(decoding_buffer, rx_len, &pos_cmd);
 							pos_cmd.timestamp = xTaskGetTickCount ();
 							xQueueOverwrite(pos_cmd_q, &pos_cmd);

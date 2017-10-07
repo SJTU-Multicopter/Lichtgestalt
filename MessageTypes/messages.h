@@ -172,9 +172,11 @@ typedef enum statusGS_e {
 	gs_normal = 0,
 
 } statusGS_t;
-typedef enum statusRC_e {
-	rc_normal = 0,
-} statusRC_t;
+typedef enum statusLink_e {
+	link_idle = 0,
+	link_running,
+	link_broken_in_air
+} statusLink_t;
 typedef struct statusCheck_s{
 	bool ok;
 	uint8_t acc;
@@ -190,7 +192,7 @@ typedef struct statusCheck_s{
 extern mode_t g_mode;
 extern statusLock_t g_statusLock;
 extern statusFlight_t g_statusFlight;
-extern statusRC_t g_statusRC;
+extern statusLink_t g_statusLink;
 extern statusGS_t g_statusGS;
 extern short data2send[18];
 #endif

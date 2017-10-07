@@ -30,7 +30,7 @@
 mode_t g_mode;
 statusLock_t g_statusLock;
 statusFlight_t g_statusFlight;
-statusRC_t g_statusRC;
+statusLink_t g_statusLink;
 statusGS_t g_statusGS;
 
 //static battery_t _bat;

@@ -78,13 +78,11 @@ void rc_channel2attsp(manCtrlsp_t* sp, const rc_t* rc, float dt)
 */
 void commanderTask( void *pvParameters )
 {
-#if CMD_PPM
-	float dt;
-	uint32_t lastWakeTime, currWakeTime;
-	lastWakeTime = xTaskGetTickCount ();
-#endif
+	TickType_t xLastWakeTime;
+	const TickType_t timeIncreament = 20;
+	uint32_t last_timestamp = 0;
 	for(;;){
-#if CMD_XBEE
+
 	#if XBEE_API
 		if(g_mode == modeMan){
 			xbee_commandBlockingAcquire(&att_cmd);
@@ -93,28 +91,25 @@ void commanderTask( void *pvParameters )
 			xQueueOverwrite(mansp_q, &mansp);
 		}
 		else if (g_mode == modePos){
-			xbee_outdoor_commandBlockingAcquire(&pos_cmd);//rewriten by Wade
-			pos_cmd.timestamp = xTaskGetTickCount ();
-			xbee_posCmd2posSp(&possp,&pos_cmd);
-			xQueueOverwrite(possp_q, &possp);
+			if(g_statusLink != link_broken_in_air){
+				xbee_outdoor_commandAcquire(&pos_cmd);//rewriten by Wade
+				uint32_t this_timestamp = pos_cmd.timestamp;
+				if(this_timestamp != last_timestamp){
+					last_timestamp = this_timestamp;
+					pos_cmd.timestamp = xTaskGetTickCount ();
+					xbee_posCmd2posSp(&possp,&pos_cmd);
+					possp.timestamp = xTaskGetTickCount();
+					xQueueOverwrite(possp_q, &possp);
+				}
+			}
+			else{//link_broken_in_air
+				possp.pos_sp.z += 0.6f * timeIncreament / 1000;
+				possp.timestamp = xTaskGetTickCount();
+				xQueueOverwrite(possp_q, &possp);
+			}
 		}
 	#endif
-#else
-		rcBlockingAcquire(&rc);
-		currWakeTime = xTaskGetTickCount ();
-		dt = (float)(currWakeTime - lastWakeTime) / (float)configTICK_RATE_HZ;
-		if(dt > 0.2f)
-			dt = 0.2f;
-		/*
-		for(int i=0;i<3;i++){
-			data2send[i+6] = rc.channels[i];//state.Euler.v[i]*573.0f;
-			data2send[i+9] = rc.channels[i+3];
-		//	data2send[i+12] = _marg.acc.v[i];
-		//	data2send[i+15] = _marg.gyr.v[i];
-		}*/
-		lastWakeTime = currWakeTime;
-		rc_channel2attsp(&attsp, &rc, dt);
-#endif
+		vTaskDelayUntil( &xLastWakeTime, timeIncreament ); 
 	}
 }
 /*
