@@ -43,7 +43,7 @@ void powerDistribution(output_t* output, const battery_t * bat)
 	float motorForce[4] = {0,0,0,0};
 	unsigned short motorDuty[4] = {1000,1000,1000,1000};
 	short i;
-	if(output->thrust < 50.0f){
+	if(output->thrust < 0.0f){
 		motorForce[0] = 0;
 		motorForce[1] = 0;
 		motorForce[2] = 0;

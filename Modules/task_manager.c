@@ -97,8 +97,13 @@ void attitude_initialized_callback(att_t * att)
 }
 uint32_t self_check(void)
 {
-	
-	return 0;
+	attsp_t attsp;
+	attspAcquire(&attsp);
+	if(attsp.thrust<0){
+		return 0;
+	}
+	else
+		return 1;
 }
 void start_manager(void)
 {
@@ -130,10 +135,12 @@ static void managerTask(void* param)
 		if(g_statusLock == motorUnlocking){
 			if(self_check() == 0)
 				g_statusLock = motorUnlocked;
+			else
+				g_statusLock = motorLocked;
 		}
-		if(g_statusLock == motorLocked)
-			setLed(0, 500, 1000);
+		if(g_statusLock == motorUnlocked)
+			setLed(0, 200, 500);
 		else
-			setLed(0, 200, 500);		
+			setLed(0, 500, 1000);		
 	}
 }

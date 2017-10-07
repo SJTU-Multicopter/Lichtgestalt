@@ -102,7 +102,7 @@ void decode_pos_sp(unsigned char * data, unsigned int pack_len, posCmd_t* cmd)
 	cmd->acc_ff.v[1] = (float)acc[1] / 1000;
 	cmd->acc_ff.v[2] = (float)acc[2] / 1000;
 	cmd->yaw_sp = yw / YAW_F;
-	cmd->emergency = e;
+	cmd->commands = e;
 }
 void decode_pid(unsigned char * data, unsigned int pack_len, PID_t* PRpid1, PID_t* PRpid2, PID_t* Ypid)
 {
@@ -286,6 +286,21 @@ unsigned char encode_general_18(unsigned char * data, const void * data2send)
 	memcpy(data + 18, &timestamp, 4);
 	memcpy(data + 22, data2send, 36);
 	return 41;//length from desc to last data
+}
+unsigned char encode_pos_yaw(unsigned char * data, const att_t* att, const pos_t* pos)
+{
+	unsigned char descriptor = DSCR_POSYAW;
+	unsigned int timestamp = xTaskGetTickCount();
+	short yaw = att->Euler.Y * YAW_F;
+	int pos_i[3];
+	for(int i=0;i<3;i++){
+		pos_i[i] = pos->pos.v[i] * 1000;
+	}
+	memcpy(data + 17, &descriptor, 1);
+	memcpy(data + 18, &timestamp, 4);
+	memcpy(data + 22, pos_i, 12);
+	memcpy(data + 34, &yaw, 2);
+	return 19;//length from desc to last data
 }
 unsigned short crc_update (unsigned short crc, unsigned char data)
 {

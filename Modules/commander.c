@@ -52,6 +52,7 @@ void xbee_posCmd2posSp(posCtrlsp_t* sp, const posCmd_t* cmd)
 		sp->vel_ff.v[i] = cmd->vel_ff.v[i];
 		sp->acc_ff.v[i] = cmd->acc_ff.v[i];
 	}
+	sp->commands = cmd->commands;
 	sp->yaw_sp = cmd->yaw_sp;
 }
 /*

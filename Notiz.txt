@@ -33,3 +33,7 @@ add: USE_HAL_DRIVER,STM32F405xx,ARM_MATH_CM4,__CC_ARM
 to project options
 core_cm4.h line 126: add
 #define __FPU_PRESENT 1U
+
+
+deleted unnecessarry files
+add gps config 

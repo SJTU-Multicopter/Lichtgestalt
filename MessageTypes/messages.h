@@ -98,7 +98,7 @@ typedef struct pos_command_s {
 	vec3f_t vel_ff;
 	vec3f_t acc_ff;
 	float yaw_sp;
-	short emergency;
+	short commands;
 } posCmd_t;
 typedef struct attsp_s {
 	uint32_t timestamp;
@@ -112,6 +112,7 @@ typedef struct possp_s {
 	vec3f_t vel_ff;
 	vec3f_t acc_ff;
 	float yaw_sp;
+	short commands;
 } posCtrlsp_t;
 typedef struct altCtrlsp_s {
 	uint32_t timestamp;

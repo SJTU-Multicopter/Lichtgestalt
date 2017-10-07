@@ -9,6 +9,7 @@
 #include "../Commons/platform.h"
 #include "../Modules/attitude_estimator.h"
 #include "../Modules/attitude_controller.h"
+#include "../Modules/position_estimator.h"
 #include "led.h"
 extern UART_HandleTypeDef huart2;
 #define TX_BUF_SIZE 64
@@ -35,6 +36,7 @@ static posCmd_t pos_cmd;
 static vec3f_t motion_acc;
 static calib_t cal;
 static att_t att;
+static pos_t pos;
 bool pid_ack = false;
 #endif
 static xSemaphoreHandle dataReceived;
@@ -78,7 +80,7 @@ void vDataSendTask( void *pvParameters )
 	xLastWakeTime = xTaskGetTickCount();
 	for( ;; ){
 		send_data(data2send);
-//		setLed(2,0,250);
+		setLed(2,0,250);
 		vTaskDelayUntil( &xLastWakeTime, timeIncreament ); 
 	}  
 }
@@ -158,6 +160,7 @@ void send_data(void *data)
 	if(g_mode != modeCal){
 		unsigned char content_len;
 		attAcquire(&att);
+		posAcquire(&pos);
 		if(pid_ack){
 			content_len = encode_pid(tx_buffer, 
 				pitchPID.P,pitchPID.Prate,pitchPID.Irate,pitchPID.Drate,
@@ -166,7 +169,8 @@ void send_data(void *data)
 		}
 		else{
 //			content_len = encode_yaw(tx_buffer, &att);
-			content_len = encode_general_18(tx_buffer, data);
+//			content_len = encode_general_18(tx_buffer, data);
+			content_len = encode_pos_yaw(tx_buffer, &att, &pos);
 		}
 		api_tx_encode(tx_buffer, dest_addr_h, dest_addr_l);
 		api_pack_encode(tx_buffer, content_len+14);

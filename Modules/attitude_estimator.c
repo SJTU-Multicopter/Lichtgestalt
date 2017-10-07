@@ -13,9 +13,9 @@
 //extern short data2send[9];
 
 
-float w_mag = 0.4f;
-float w_acc = 0.2f;
-float w_gyr_bias = 0.1f;
+float w_mag = 0.2f;
+float w_acc = 0.3f;
+float w_gyr_bias = 0.031f;
 float bias_max = 0.05f;
 
 static marg_t _marg;

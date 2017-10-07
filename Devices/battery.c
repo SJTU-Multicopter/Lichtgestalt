@@ -41,8 +41,13 @@ void vAdcTask(void *pvParameters)
 		vTaskDelayUntil( &xLastWakeTime, timeIncreament ); 
 		HAL_ADC_PollForConversion(&hadc1, 50);//less than 2us
 		bat.voltage = battery_get_voltage();
-		if(g_mode != modeCal && bat.voltage < BAT_WARNING)
-			setLed(1, 300, 1000);
+		if(g_mode != modeCal){
+
+			if(bat.voltage < BAT_WARNING)
+				setLed(1, 300, 1000);
+			else
+				setLed(1, 0, 1000);
+		}
 		bat.timestamp = xTaskGetTickCount ();
 		xQueueOverwrite(bat_q, &bat);
 		vTaskDelayUntil( &xLastWakeTime, timeIncreament ); 

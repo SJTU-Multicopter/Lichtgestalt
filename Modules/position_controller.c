@@ -6,6 +6,7 @@
 #include "../Mathlib/comparison.h"
 #include "cmsis_os.h"
 #include "../Commons/platform.h"
+#include "../Modules/commons.h"
 #define POS_CTRL_TASK_STACKSIZE (3 * configMINIMAL_STACK_SIZE)
 #define POS_CTRL_TASK_PRI 2
 #define POS_CTRL_TASK_PERIOD_MS 4
@@ -18,7 +19,7 @@
 #define VEL_FF_Z_P 0.6f
 #define ACC_FF_P 1.0f
 
-#define GRAVITY 9.81f
+//#define GRAVITY 9.81f
 //#define VEHICLE_MASS 1.289f
 #define TILT_MAX 1.0f
 #define THR_MIN 4.0f
@@ -140,6 +141,12 @@ void position_controller(const pos_t *pos, const att_t *att, const posCtrlsp_t *
 	for(i=0; i<3; i++)
 		z_b.v[i] = att->R.R[i][2];
 	attsp->thrust = -vec3f_dot(&acc_sp, &z_b) * VEHICLE_MASS;
+	if(possp->commands == 1||possp->commands == 0){
+		attsp->thrust = -10.0f;
+	}
+	else if (possp->commands == 2){
+		;
+	}
 //	if((g_statusFlight == statusLanded) && (reset_takeoff == true))
 //	{
 //		attsp->thrust = GRAVITY * VEHICLE_MASS*0.5f;
@@ -190,8 +197,11 @@ void position_controller(const pos_t *pos, const att_t *att, const posCtrlsp_t *
 
 	t_pitch_sp = -asin(attsp->R.R[2][0]);
 	t_roll_sp = atan2(attsp->R.R[2][1], attsp->R.R[2][2]);
-	t_pitch_sp = t_pitch_sp;
-	t_roll_sp = t_roll_sp;
+	#if XBEE_POS
+		data2send[15] = t_roll_sp*573;
+		data2send[16] = t_pitch_sp*573;
+		data2send[17] = attsp->thrust * 1000;
+	#endif
 }
 
 static void position_control_Task( void *pvParameters )
@@ -215,6 +225,11 @@ static void position_control_Task( void *pvParameters )
 		else if(g_mode == modePos){
 			posSetpointAcquire(&_possp);
 			position_controller(&_pos, &_att, &_possp, &_attsp, POS_CTRL_TASK_PERIOD_S);
+			#if XBEE_POS
+			for(int i=0;i<3;i++){
+				data2send[12+i] = _possp.pos_sp.v[i]*1000;
+			}
+			#endif
 		}
 
 		_attsp.timestamp = xTaskGetTickCount();

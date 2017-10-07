@@ -66,6 +66,7 @@
 #define DSCR_GEN 0x14
 #define DSCR_YAW 0x15
 #define DSCR_PID 0x16
+#define DSCR_POSYAW 0x17
 unsigned char api_pack_decode(unsigned char * data, unsigned int pack_len);
 void api_tx_status_decode(unsigned char * data, unsigned int pack_len);
 unsigned char  api_rx_decode(unsigned char * data, unsigned int pack_len);
@@ -84,6 +85,7 @@ unsigned char encode_att(unsigned char * data, const att_t* att);
 unsigned char encode_general_18(unsigned char * data, const void * data2send);
 unsigned char encode_sens(unsigned char * data, const marg_t * marg);
 unsigned char encode_yaw(unsigned char * data, const att_t* att);
+unsigned char encode_pos_yaw(unsigned char * data, const att_t* att, const pos_t* pos);
 #define ATT_Q 14
 #define ATT_F 16384.0f
 #define YAW_Q 12

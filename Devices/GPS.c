@@ -20,6 +20,7 @@ static unsigned char buf2read_num=0;
 static void GPSTask( void *pvParameters );
 static xSemaphoreHandle gps_dataReceived;
 static xQueueHandle gps_q;
+
 void GPSReceive_IDLE(void)  
 {  
   //  uint32_t temp;  
@@ -45,9 +46,16 @@ void GPSReceive_IDLE(void)
 }  
 void GPSInit(void)
 {
+	unsigned char configRate[14] = {0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0xC8, 0x00, 0x01, 0x00, 0x01, 0x00, 0xDE, 0x6A};
+	unsigned char configCheck[8] = {0xB5, 0x62, 0x06, 0x08, 0x00, 0x00, 0x0E, 0x30};
+	HAL_UART_Transmit(&huart1,configRate, 14, 100);
+	HAL_Delay(10);
+	HAL_UART_Transmit(&huart1,configCheck, 8, 100);
+	HAL_Delay(10);
 	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
 	vSemaphoreCreateBinary( gps_dataReceived );
 	gps_q = xQueueCreate(1,sizeof(gpsRaw_t));
+	
 	xTaskCreate( GPSTask, "GPS", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+3, NULL );  
 	if(buffer_num == 0){
 		HAL_UART_Receive_DMA(&huart1,gps_buffer0,GPS_BUFFER_SIZE); 
@@ -253,13 +261,19 @@ void get_gps_data(void)//read the data we want in gps_buffer[160]
 				 	frame=OTH_FRM;
 			#elif M8N_GPS
 				if(string[0]=='G'&&string[1]=='N'&&string[2]=='G'
-				&&string[3]=='G'&&string[4]=='A')
-					frame=GPGGA;	
+				&&string[3]=='G'&&string[4]=='A'){
+					frame=GPGGA;
+			
+				}
 				else if(string[0]=='G'&&string[1]=='N'&&string[2]=='R'
-				&&string[3]=='M'&&string[4]=='C')
+				&&string[3]=='M'&&string[4]=='C'){
+				
 					frame=GPRMC;
-				else 
+				}
+				else {
 				 	frame=OTH_FRM;
+				
+				}
 			#endif
 			}
 			if(frame==OTH_FRM)
@@ -390,6 +404,7 @@ void GPSTask( void *pvParameters )
 			get_gps_data();
 			gps.timestamp = xTaskGetTickCount ();
 			xQueueOverwrite(gps_q,&gps);
+		
 		}
 //		vTaskDelayUntil( &xLastWakeTime, timeIncreament );  
 	}  

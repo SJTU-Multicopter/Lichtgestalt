@@ -29,8 +29,8 @@
 /******Driver Options*****/
 
 /******Devices Options*****/
-#define XBEE_API 0
-#define XBEE_TRANS 1
+#define XBEE_API 1
+#define XBEE_TRANS 0
 #define CMD_SBUS 0
 #define CMD_PPM 0
 #define CMD_XBEE 1
