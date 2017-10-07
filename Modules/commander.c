@@ -81,6 +81,7 @@ void commanderTask( void *pvParameters )
 	TickType_t xLastWakeTime;
 	const TickType_t timeIncreament = 20;
 	uint32_t last_timestamp = 0;
+	xLastWakeTime = xTaskGetTickCount();
 	for(;;){
 
 	#if XBEE_API

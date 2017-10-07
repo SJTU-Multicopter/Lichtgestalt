@@ -147,6 +147,8 @@ void position_controller(const pos_t *pos, const att_t *att, const posCtrlsp_t *
 	else if (possp->commands == 2){
 		;
 	}
+	if(att->R.R[2][2] < 0)
+		attsp->thrust = -10.0f;
 //	if((g_statusFlight == statusLanded) && (reset_takeoff == true))
 //	{
 //		attsp->thrust = GRAVITY * VEHICLE_MASS*0.5f;
