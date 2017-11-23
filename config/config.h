@@ -43,28 +43,14 @@
 #define ATT_CTRL_TASK_PERIOD_S 0.002f
 
 
-#define SYSTEM_TASK_STACKSIZE         (2* configMINIMAL_STACK_SIZE)
-#define CMD_TASK_STACKSIZE            configMINIMAL_STACK_SIZE
+#define CMD_TASK_STACKSIZE            (2 * configMINIMAL_STACK_SIZE)
 #define ADC_TASK_STACKSIZE            configMINIMAL_STACK_SIZE
 #define LED_TASK_STACKSIZE            configMINIMAL_STACK_SIZE
-#define PM_TASK_STACKSIZE             configMINIMAL_STACK_SIZE
-#define CRTP_TX_TASK_STACKSIZE        configMINIMAL_STACK_SIZE
-#define CRTP_RX_TASK_STACKSIZE        configMINIMAL_STACK_SIZE
-#define CRTP_RXTX_TASK_STACKSIZE      configMINIMAL_STACK_SIZE
-#define LOG_TASK_STACKSIZE            configMINIMAL_STACK_SIZE
-#define MEM_TASK_STACKSIZE            configMINIMAL_STACK_SIZE
-#define PARAM_TASK_STACKSIZE          configMINIMAL_STACK_SIZE
 #define SENSORS_TASK_STACKSIZE        configMINIMAL_STACK_SIZE
 #define STABILIZER_TASK_STACKSIZE     (3 * configMINIMAL_STACK_SIZE)
-#define NRF24LINK_TASK_STACKSIZE      configMINIMAL_STACK_SIZE
-#define ESKYLINK_TASK_STACKSIZE       configMINIMAL_STACK_SIZE
-#define SYSLINK_TASK_STACKSIZE        configMINIMAL_STACK_SIZE
-#define USBLINK_TASK_STACKSIZE        configMINIMAL_STACK_SIZE
-#define PROXIMITY_TASK_STACKSIZE      configMINIMAL_STACK_SIZE
-#define EXTRX_TASK_STACKSIZE          configMINIMAL_STACK_SIZE
 #define UART_RX_TASK_STACKSIZE        configMINIMAL_STACK_SIZE
 
-#define M2T(X) ((unsigned int)((X)*(configTICK_RATE_HZ/1000.0)))
-#define F2T(X) ((unsigned int)((configTICK_RATE_HZ/(X))))
+//#define M2T(X) ((unsigned int)((X)*(configTICK_RATE_HZ/1000.0)))
+//#define F2T(X) ((unsigned int)((configTICK_RATE_HZ/(X))))
 
 #endif /* CONFIG_H_ */

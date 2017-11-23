@@ -31,12 +31,14 @@ unsigned int dest_addr_l = 0x616D4E41;
 static xQueueHandle att_cmd_q;
 static xQueueHandle pos_cmd_q;
 static xQueueHandle motion_acc_q;
+static xQueueHandle rc_q;
 static xQueueHandle cal_q;
 static attCmd_t att_cmd;
 static posCmd_t pos_cmd;
 static vec3f_t motion_acc;
 static calib_t cal;
 static att_t att;
+static rc_t rc;
 static pos_t pos;
 bool pid_ack = false;
 #endif
@@ -53,7 +55,9 @@ void data_link_init(void)
 	pos_cmd_q = xQueueCreate(1, sizeof(posCmd_t));
 	motion_acc_q = xQueueCreate(1, sizeof(vec3f_t));
 	cal_q = xQueueCreate(1, sizeof(calib_t));
+	rc_q = xQueueCreate(1, sizeof(rc_t));
 	#endif
+	
 	vSemaphoreCreateBinary( dataReceived );
 	if(buffer_num == 0){
 		HAL_UART_Receive_DMA(&huart2,rx_buffer0,RX_BUF_SIZE); 
@@ -153,6 +157,11 @@ void vDataReceiveTask( void *pvParameters )
 							pid_ack = true;
 						}
 						break;
+						case DSCR_RC:{
+							decode_rc(decoding_buffer, rx_len, &rc);
+							xQueueOverwrite(rc_q, &rc);
+						}
+						break;
 						default:
 						break;
 					}//switch descriptor
@@ -185,8 +194,8 @@ void send_data(void *data)
 		}
 		else{
 //			content_len = encode_yaw(tx_buffer, &att);
-//			content_len = encode_general_18(tx_buffer, data);
-			content_len = encode_pos_yaw(tx_buffer, &att, &pos);
+			content_len = encode_general_18(tx_buffer, data);
+//			content_len = encode_pos_yaw(tx_buffer, &att, &pos);
 		}
 		api_tx_encode(tx_buffer, dest_addr_h, dest_addr_l);
 		api_pack_encode(tx_buffer, content_len+14);
@@ -216,6 +225,10 @@ void xbee_commandBlockingAcquire(attCmd_t *cmd)
 void xbee_outdoor_commandAcquire(posCmd_t *cmd)//added by Wade
 {
 	xQueuePeek(pos_cmd_q, cmd, 0);
+}
+void xbee_rcAcquire(rc_t *rc)//added by Wade
+{
+	xQueuePeek(rc_q, rc, 0);
 }
 void xbee_outdoor_commandBlockingAcquire(posCmd_t *cmd)//added by Wade
 {

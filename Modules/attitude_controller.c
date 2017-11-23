@@ -18,13 +18,16 @@ static void attitude_control_Task( void *pvParameters );
 
 PID_t pitchPID={0,0,0,0,
 			1.6,16.0,
-			0.0,0.0};
+			0.015,0.004f,
+			3.0f};
 PID_t rollPID={0,0,0,0,
 			1.6,16.0,
-			0.0,0.0};
+			0.015,0.004f,
+			3.0f};
 PID_t yawPID={0,0,0,0,
 			0.75,10.0,
-			0.0,0.0};
+			0.0,0.0,
+			3.0f};
 
 void attitude_controller(output_t *output, 
 	const att_t *state,const attsp_t *attsp, float dt)

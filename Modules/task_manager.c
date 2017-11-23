@@ -28,7 +28,9 @@
 #include "../Devices/GPS.h"
 #include "../Devices/ms5611_i2c.h"
 mode_t g_mode;
+modeRC_t g_modeRC;
 statusLock_t g_statusLock;
+
 statusFlight_t g_statusFlight;
 statusLink_t g_statusLink;
 statusGS_t g_statusGS;
@@ -45,7 +47,8 @@ void taskManagerInit(void)
 		#if INDOOR
 		g_mode = modeMan;
 		#elif OUTDOOR
-		g_mode = modePos;
+	//	g_mode = modePos;
+		g_mode = modeRC;
 		#endif
 	}
 	g_statusFlight = statusInitiating;
@@ -69,7 +72,7 @@ void taskManagerInit(void)
 	
 //	motor_mixer_init();
 	
-	if(g_mode == modeMan ||  g_mode == modePos){
+	if(g_mode == modeMan ||  g_mode == modePos || g_mode == modeRC){
 		commanderInit();
 		attitude_init();
 		

@@ -148,8 +148,17 @@ typedef enum modeVehicle_e {
 	modeMan,
 	modeAlt,
 	modePos,
-	modeTrj
+	modeTrj,
+	modeRC
 } mode_t;
+typedef enum modeRC_e {
+
+	modeRcRate,
+	modeRcMan,
+	modeRcAlt,
+	modeRcPos
+
+} modeRC_t;
 typedef enum statusLock_e {
 	motorLocked = 0,
 	motorUnlocking,
@@ -190,6 +199,7 @@ typedef struct statusCheck_s{
 	uint8_t pos;
 }statusCheck_t;
 extern mode_t g_mode;
+extern modeRC_t g_modeRC;
 extern statusLock_t g_statusLock;
 extern statusFlight_t g_statusFlight;
 extern statusLink_t g_statusLink;

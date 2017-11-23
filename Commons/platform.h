@@ -57,17 +57,18 @@
 	#define M8N_GPS 1
 #endif
 
-#define XBEE_SENS_ATT 0
-#define XBEE_POS 1
+#define XBEE_SENS_ATT 1
+#define XBEE_POS 0
 #define XBEE_OTHERS 0
 
 
 #define FREQ_1000HZ 1
-
+/*
 #define MAX_ATT_MANUEL 0.698f//11437 40deg,0.698rad
 #define MAX_YAW_RATE 0.698f//14303 50.0
 #define MAX_YAW_RATE_MANEUL 0.698f
 #define YAWRATE_DEADZONE 0.17f
+*/
 #define BAT_WARNING 3700
 //#define GRAVITY 9.81f
 #endif

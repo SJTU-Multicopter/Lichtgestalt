@@ -44,7 +44,7 @@ void led_init(void)
 	LED1_OFF();
 	LED2_OFF();
 	LED3_OFF();
-	xTaskCreate( vLedTask, "LED", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRI, NULL );  
+	xTaskCreate( vLedTask, "LED", LED_TASK_STACKSIZE, NULL, LED_TASK_PRI, NULL );  
 }
 void but_init(void)
 {

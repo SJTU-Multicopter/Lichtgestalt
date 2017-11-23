@@ -15,7 +15,7 @@
 
 #define MAX_XY_VEL 5.0f
 #define MAX_ALT_VEL 2.0f
-#define VEL_FF_XY_P 0.1f
+#define VEL_FF_XY_P 0.5f
 #define VEL_FF_Z_P 0.6f
 #define ACC_FF_P 1.0f
 
@@ -36,13 +36,16 @@ static void position_control_Task( void *pvParameters );
 
 PID_t altPID = {0,0,0,0,
 		1.55,
-		2.05, 0.16, 0.06};
+		2.05, 0.16, 0.06,
+		5.0f};
 PID_t pos_xPID = {0,0,0,0,
 		1.027,
-		5.16, 0.0,0.002};
+		5.16, 0.0,0.002,
+		5.0f};
 PID_t pos_yPID = {0,0,0,0,
 		1.027,
-		5.16, 0.0,0.002};
+		5.16, 0.0,0.002,
+		5.0f};
 
 void manuel_controller(attsp_t *attsp, const manCtrlsp_t * sp)
 {

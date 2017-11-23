@@ -59,6 +59,7 @@
 #define DSCR_CAL 0x02
 #define DSCR_CFG 0x03
 #define DSCR_POSCTL 0x04
+#define DSCR_RC 0x05
 
 #define DSCR_SENS_RAW 0x11
 #define DSCR_SENS 0x12
@@ -73,6 +74,7 @@ unsigned char  api_rx_decode(unsigned char * data, unsigned int pack_len);
 void decode_cmd_acc(unsigned char * data, unsigned int pack_len, attCmd_t* cmd, vec3f_t* mot_acc);
 
 void decode_pos_sp(unsigned char * data, unsigned int pack_len, posCmd_t* cmd);//added by Wade
+void decode_rc(unsigned char * data, unsigned int pack_len, rc_t* rc);
 
 void decode_calibrate(unsigned char * data, unsigned int pack_len, calib_t* cal);
 void decode_pid(unsigned char * data, unsigned int pack_len, PID_t* PRpid1, PID_t* PRpid2, PID_t* Ypid);

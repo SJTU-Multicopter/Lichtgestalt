@@ -7,6 +7,19 @@
 #include "../Devices/data_link.h"
 #include "../Devices/receiver.h"
 #include "../Commons/platform.h"
+#define MAX_ATT_MANUEL 0.5f//11437 40deg,0.698rad
+#define MAX_YAW_RATE 1.4f//14303 50.0
+#define MAX_YAW_RATE_MANEUL 1.4f
+#define MAX_Z_RATE_MANEUL 1.0f
+#define MAX_XY_RATE_MANEUL 5.0f
+#define YAW_RATE_DEADZONE 0.17f
+#define Z_RATE_DEADZONE 0.2f
+#define XY_RATE_DEADZONE 0.3f
+#define RTL_ALTITUDE 30.f
+#define RTL_HOVERING_ALTITUDE 3.0f
+#define BREAKING_ACC_MAX 2.0f
+#define ALT_CONSTRAIN -80.0f
+#define MAN_ALT_HIDE 1
 
 static xQueueHandle mansp_q;
 static manCtrlsp_t mansp;
@@ -14,7 +27,7 @@ static manCtrlsp_t mansp;
 static xQueueHandle possp_q;
 static posCtrlsp_t possp;
 
-
+static rc_t rc;
 //static vec3f_t euler_sp;
 #if CMD_XBEE
 #if XBEE_API
@@ -25,7 +38,7 @@ static posCmd_t pos_cmd;
 
 #endif
 #else
-static rc_t rc;
+
 //short rc_int[16];
 #endif
 static void commanderTask( void *pvParameters ) ;
@@ -107,6 +120,18 @@ void commanderTask( void *pvParameters )
 				possp.pos_sp.z += 0.6f * timeIncreament / 1000;
 				possp.timestamp = xTaskGetTickCount();
 				xQueueOverwrite(possp_q, &possp);
+			}
+		}
+		else if(g_mode == modeRC){
+			if(g_statusLink != link_broken_in_air){
+				xbee_rcAcquire(&rc);//rewriten by Wade
+			//	uint32_t this_timestamp = rc.timestamp;
+			//	for(int i=0;i<6;i++)
+			//		data2send[6+i] = rc.channels[i]*1000;
+			}
+			else{//link_broken_in_air
+				
+				
 			}
 		}
 	#endif

@@ -14,6 +14,10 @@ float internal_err_pid(PID_t *pid, float rate_err, float dt)
   	rateOuput = pid->Prate * pid->RateErr + pid->Drate * (pid->RateErr - pid->l_RateErr) / dt + pid->Irate * pid->int_RateErr;
   	pid->l_RateErr = pid->RateErr;
 	pid->int_RateErr += pid->RateErr * dt;
+	if(pid->int_RateErr > pid->int_constrain)
+		pid->int_RateErr = pid->int_constrain;
+	if(pid->int_RateErr < -pid->int_constrain)
+		pid->int_RateErr = -pid->int_constrain;
   	return rateOuput;
 }
 

@@ -21,16 +21,48 @@ Target DLL:      Segger\JL2CM3.dll V2.99.15.2
 Dialog DLL:      TCM.DLL V1.14.5.0
  
 <h2>Project:</h2>
-F:\HauptOrdner\dasLaaboratorium\STM_AutoPilot\STM32\STMGenerated\SwarmSJTU\Lichtgestalt\MDK-ARM\AutoPilot.uvprojx
+F:\HauptOrdner\dasLaaboratorium\DieSchwaermerische\SwarmSJTU\Lichtgestalt\MDK-ARM\AutoPilot.uvprojx
 Project File Date:  10/05/2017
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 (build 20)', folder: 'F:\SoftwareOrdner\Keil5\installed\ARM\ARMCC\Bin'
 Build target 'AutoPilot'
+compiling mpu6000_spi.c...
+compiling battery.c...
+compiling data_link.c...
+compiling hmc5883l_i2c.c...
+compiling led.c...
+compiling rom.c...
+compiling system.c...
+compiling receiver.c...
+compiling GPS.c...
+compiling motor_mixer.c...
+compiling sensors_task.c...
+compiling situation_awareness.c...
+compiling sensors_calibration.c...
+compiling commander.c...
+compiling attitude_estimator.c...
+compiling attitude_controller.c...
 compiling position_controller.c...
+..\Modules\position_controller.c(120): warning:  #550-D: variable "t_pitch_sp" was set but never used
+  	float t_pitch_sp;
+..\Modules\position_controller.c(121): warning:  #550-D: variable "t_roll_sp" was set but never used
+  	float t_roll_sp;
+..\Modules\position_controller.c: 2 warnings, 0 errors
+compiling position_estimator.c...
+..\Modules\position_estimator.c(190): warning:  #550-D: variable "att_acc_ready" was set but never used
+  	bool att_acc_ready = false;
+..\Modules\position_estimator.c(217): warning:  #550-D: variable "att_ready" was set but never used
+  	bool att_ready = false;
+..\Modules\position_estimator.c(218): warning:  #550-D: variable "gps_azm_correct" was set but never used
+  	bool gps_azm_correct = false;
+..\Modules\position_estimator.c(228): warning:  #550-D: variable "gps_pre_t" was set but never used
+  	uint32_t gps_pre_t = 0;
+..\Modules\position_estimator.c: 4 warnings, 0 errors
+compiling task_manager.c...
 linking...
-Program Size: Code=84478 RO-data=218126 RW-data=968 ZI-data=71600  
-"AutoPilot\AutoPilot.axf" - 0 Error(s), 0 Warning(s).
+Program Size: Code=84436 RO-data=218128 RW-data=1000 ZI-data=71728  
+"AutoPilot\AutoPilot.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -41,14 +73,14 @@ Package Vendor: ARM
    * Component: CORE Version: 4.1.0
 
 <h2>Collection of Component include folders:</h2>
-  F:\HauptOrdner\dasLaaboratorium\STM_AutoPilot\STM32\STMGenerated\SwarmSJTU\Lichtgestalt\MDK-ARM\RTE
+  F:\HauptOrdner\dasLaaboratorium\DieSchwaermerische\SwarmSJTU\Lichtgestalt\MDK-ARM\RTE
   F:\SoftwareOrdner\Keil5\installed\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include
   F:\SoftwareOrdner\Keil5\installed\ARM\PACK\STM32F4xx\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:4.1.0
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:11
 </pre>
 </body>
 </html>

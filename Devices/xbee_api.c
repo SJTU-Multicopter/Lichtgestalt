@@ -80,6 +80,27 @@ void decode_cmd_acc(unsigned char * data, unsigned int pack_len, attCmd_t* cmd, 
 	for(i=0;i<3;i++)
 		mot_acc->v[i] = (float)acc[i] / ACC_F;
 }
+void decode_rc(unsigned char * data, unsigned int pack_len, rc_t* rc)
+{
+//	[3E,0,api_len,90,	0-3
+//	add_H,H,H,H,	4-7
+//	add_L,L,L,L,	8-11
+//	src_net,src_net,rcv_opt,descriptor 0x05	12-15
+//	t,t,t,t,		16-19
+//	c0,c0,c1,c1		20-23
+//	c2,c2,c3,c3		24-27
+//	c4,c4,c5,c5		28-31
+//	c6,c6,c7,c7		32-35
+//	c8,c8,c9,c9		36-39	
+//	checksum		40	
+	short channel[10];
+	unsigned int timestamp;
+	memcpy(&timestamp, data + 16, 4);
+	memcpy(channel, data + 20, 20);
+	for(int i=0;i<10;i++)
+		rc->channels[i] = (float)channel[i] / 1000.0f;
+	rc->timestamp = timestamp;
+}
 /*added by Wade*/
 void decode_pos_sp(unsigned char * data, unsigned int pack_len, posCmd_t* cmd)
 {

@@ -10,6 +10,7 @@ typedef struct PID_s {
 	float Prate;
 	float Irate;
 	float Drate;
+	float int_constrain;
 }PID_t;
 float external_err_pid(PID_t *pid, float err);
 

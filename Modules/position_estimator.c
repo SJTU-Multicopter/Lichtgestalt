@@ -27,7 +27,7 @@ const float w_z_vicon_v = 2.0f;
 
 const float w_acc_xy_bias = 0.01f;//0.01f
 const float w_acc_z_bias = 0.00f;//0.005f;
-
+const float acc_bias_max = 0.1f;
 bool gps_valid = false;
 
 vec3f_t _acc_bias_body;   
@@ -141,12 +141,12 @@ static void position_estimation( void *pvParameters )
 		{ 0.0f, 0.0f },		// E (pos, vel)
 		{ 0.0f, 0.0f },		// D (pos, vel)
 	};
-	float corr_vicon[3][2] = {
+/*	float corr_vicon[3][2] = {
 		{ 0.0f, 0.0f },		// N (pos, vel)
 		{ 0.0f, 0.0f },		// E (pos, vel)
 		{ 0.0f, 0.0f },		// D (pos, vel)
 	};
-
+*/
 	//baro init and offset
 	int baro_init_cnt = 0;
 	int baro_init_num = 200;
@@ -160,7 +160,7 @@ static void position_estimation( void *pvParameters )
 	//acc init and offset	
 	int acc_init_cnt = 0;
 	int acc_init_num = 200;
-	float acc_offset = 0.0f;
+//	float acc_offset = 0.0f;
 	
 	int gps_init_cnt = 0;
 	int gps_init_num = 20;
@@ -707,7 +707,8 @@ static void position_estimation( void *pvParameters )
 				}
 
 				if (isfinite(c)) {
-						acc_bias[i] += c * w_acc_xy_bias * dt;
+					acc_bias[i] += c * w_acc_xy_bias * dt;
+					acc_bias[i] = constrain_f(acc_bias[i], -acc_bias_max, acc_bias_max);
 				}
 			}		
 		}
@@ -756,7 +757,8 @@ static void position_estimation( void *pvParameters )
 				}
 
 				if (isfinite(c)) {
-						acc_bias[i] += c * w_acc_z_bias * dt;
+					acc_bias[i] += c * w_acc_z_bias * dt;
+					acc_bias[i] = constrain_f(acc_bias[i], -acc_bias_max, acc_bias_max);
 				}
 			}
 		}
