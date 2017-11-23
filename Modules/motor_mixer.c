@@ -23,7 +23,7 @@ void force2output(float force[4], unsigned short duty[4], unsigned int battery)
 	}
 	for(i=0;i<4;i++){
 		duty[i] = force[i] * k / MOTOR_POWER;// + 2750;
-		duty[i] = duty[i]* 5 / 12 + MOTOR_THRESHOLD + 1000;//originally 2400~4800, now 1000~2000
+		duty[i] = constrain_int32(duty[i]* 5 / 12 + MOTOR_THRESHOLD + 1000, 1000,2000);;//originally 2400~4800, now 1000~2000
 	}
 }
 /*			A								inv(A)
@@ -43,7 +43,7 @@ void powerDistribution(output_t* output, const battery_t * bat)
 	float motorForce[4] = {0,0,0,0};
 	unsigned short motorDuty[4] = {1000,1000,1000,1000};
 	short i;
-	if(output->thrust < 0.0f){
+	if(output->thrust < 0.1f){
 		motorForce[0] = 0;
 		motorForce[1] = 0;
 		motorForce[2] = 0;
@@ -54,17 +54,33 @@ void powerDistribution(output_t* output, const battery_t * bat)
 	}
 	else{
 	#if PLUS
-		motorForce[0] = (output->thrust*0.25f) - output->moment.P * ONE_2_ROTOR_DIST + output->moment.Y * ONE_4_F_T_RATIO;
-		motorForce[1] = (output->thrust*0.25f) - output->moment.R * ONE_2_ROTOR_DIST - output->moment.Y * ONE_4_F_T_RATIO;
-		motorForce[2] = (output->thrust*0.25f) + output->moment.P * ONE_2_ROTOR_DIST + output->moment.Y * ONE_4_F_T_RATIO;
-		motorForce[3] = (output->thrust*0.25f) + output->moment.R * ONE_2_ROTOR_DIST - output->moment.Y * ONE_4_F_T_RATIO;
+		motorForce[0] = (output->thrust*0.25f) * 1000 - output->moment.P * ONE_2_ROTOR_DIST + output->moment.Y * ONE_4_F_T_RATIO;
+		motorForce[1] = (output->thrust*0.25f) * 1000 - output->moment.R * ONE_2_ROTOR_DIST - output->moment.Y * ONE_4_F_T_RATIO;
+		motorForce[2] = (output->thrust*0.25f) * 1000 + output->moment.P * ONE_2_ROTOR_DIST + output->moment.Y * ONE_4_F_T_RATIO;
+		motorForce[3] = (output->thrust*0.25f) * 1000 + output->moment.R * ONE_2_ROTOR_DIST - output->moment.Y * ONE_4_F_T_RATIO;
 	#elif CROSS
 
 	#endif	
-		force2output(motorForce, motorDuty, bat->voltage);
+		if(g_statusLockRC == motorIdle)
+		{
+			motorForce[3] =  0.1f;
+			motorForce[2] =  0.1f;
+			motorForce[1] =  0.1f;
+			motorForce[0] =  0.1f;
+			
+		}
+//		force2output(motorForce, motorDuty, bat->voltage);
+		force2output(motorForce, motorDuty, 4000);
+		#if	XBEE_CMD
+		data2send[14] = motorForce[0];
+		data2send[15] = motorForce[1];
+		data2send[16] = motorDuty[2];
+		data2send[17] = motorDuty[3];
+		#endif
 	}
-	if(g_statusLock == motorUnlocked)
+	if(g_statusLock == motorUnlocked && (g_statusLockRC == motorUnlocked||g_statusLockRC == motorIdle))
 		motor_pwm_output(motorDuty);
+	
 	else
 		motor_cut();
 }
@@ -76,6 +92,9 @@ static void motorMixTask(void* param)
 {
 	for(;;){
 		outputBlockingAcquire(&_output);
+		#if	XBEE_CMD
+		data2send[10] = _output.thrust*100;
+		#endif
 		batAcquire(&_bat);
 		powerDistribution(&_output, &_bat);
 	}

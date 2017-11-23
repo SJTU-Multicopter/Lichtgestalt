@@ -29,8 +29,9 @@ static pos_t _pos;
 //static pos_t _vicon;
 static attsp_t _attsp;
 static posCtrlsp_t _possp;
-//static altCtrlsp_t _alt_ctrl_sp;
+static altCtrlsp_t _alt_ctrl_sp;
 static manCtrlsp_t _man_ctrl_sp;
+static manCtrlEulersp_t _man_euler_ctrl_sp;
 static xQueueHandle attsp_q;
 static void position_control_Task( void *pvParameters );
 
@@ -55,6 +56,41 @@ void manuel_controller(attsp_t *attsp, const manCtrlsp_t * sp)
 //	attsp->thrust = sp->throttle * GRAVITY * VEHICLE_MASS * 2.0f;
 //	data2send[15] = attsp->thrust;
 	
+}
+void manuel_euler_controller(attsp_t *attsp, const manCtrlEulersp_t * sp)
+{
+	euler2rotation(&sp->euler, &attsp->R);
+	//throttle 0~1
+	attsp->thrust = sp->throttle * GRAVITY * VEHICLE_MASS * 2.0f;
+//	attsp->thrust = sp->throttle * GRAVITY * VEHICLE_MASS * 2.0f;
+//	data2send[15] = attsp->thrust;
+	
+}
+void altitude_controller(const pos_t *pos, const att_t *att, const altCtrlsp_t *sp, attsp_t *attsp, float dt)
+{
+	float att_comp;
+	float Rzz = att->R.R[2][2];
+	float vel_z_sp;
+	float tilt_cos_max = arm_cos_f32(TILT_MAX);
+	euler2rotation(&sp->euler, &attsp->R);
+	vel_z_sp = constrain_f(external_err_pid(&altPID, sp->pos_sp_z - pos->pos.v[2]), -MAX_ALT_VEL, MAX_ALT_VEL);
+	vel_z_sp +=  VEL_FF_Z_P * sp->vel_ff_z;
+	float acc_z_sp = -GRAVITY + internal_err_pid(&altPID, vel_z_sp - pos->vel.v[2], POS_CTRL_TASK_PERIOD_S);
+
+	if(Rzz > tilt_cos_max)
+	{	
+		if(Rzz > 0.95f){//25.84degree//18.2degree
+			att_comp = 1.0f / Rzz;}//continuous or not
+		else if(Rzz >0.8f){//36.87degree
+			att_comp = (2.5f-Rzz*1.5f)/Rzz;}//1.025/Rzz
+		else if(Rzz >0.65f){//49.458degree
+			att_comp = (2.5f-Rzz*1.5f)/Rzz;}//1.05/Rzz
+		}
+	else if(Rzz > 0.0f)	
+		att_comp = ((1.0f / tilt_cos_max - 1.0f) / tilt_cos_max) * Rzz + 1.0f;
+	else
+		att_comp = 1.0f;
+	attsp->thrust = -acc_z_sp * att_comp * VEHICLE_MASS;
 }
 /*
 void position_controller(const pos_t *pos, const att_t *att, const posCtrlsp_t *possp, attsp_t *attsp, float dt)
@@ -236,9 +272,35 @@ static void position_control_Task( void *pvParameters )
 			}
 			#endif
 		}
+		else if(g_mode == modeRC){
+			if(g_modeRC == modeMan){
+				manEulerSetpointAcquire(&_man_euler_ctrl_sp);
+
+			}
+			else if(g_modeRC == modeAlt){
+				altSetpointAcquire(&_alt_ctrl_sp);
+			}
+			else if(g_modeRC == modePos){
+				posSetpointAcquire(&_possp);
+			}
+			if(g_modeRC == modeMan){
+			//	manuel_controller(&_attsp, &_man_ctrl_sp);
+				manuel_euler_controller(&_attsp, &_man_euler_ctrl_sp);
+			}
+			else if(g_modeRC == modeAlt){
+				altitude_controller(&_pos, &_att, &_alt_ctrl_sp, &_attsp, POS_CTRL_TASK_PERIOD_S);
+			}
+			else if(g_modeRC == modePos){
+				position_controller(&_pos, &_att, &_possp, &_attsp, POS_CTRL_TASK_PERIOD_S);
+			}
+			
+		}
 
 		_attsp.timestamp = xTaskGetTickCount();
 		xQueueOverwrite(attsp_q, &_attsp);
+		#if	XBEE_CMD
+		data2send[8] = _attsp.thrust*100;
+		#endif
 //	}
 	}
 }

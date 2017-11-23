@@ -24,6 +24,9 @@ float internal_err_pid(PID_t *pid, float rate_err, float dt)
 void reset_pid(PID_t *pid)
 {
 	pid->int_RateErr = 0.0f;
+	pid->Err = 0.0f;
+	pid->RateErr = 0.0f;
+	pid->l_RateErr = 0.0f;
 }
 void init_pid(PID_t *pid, float P, float Prate, float Irate, float Drate)
 {

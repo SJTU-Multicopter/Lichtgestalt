@@ -28,13 +28,13 @@
 #include "../Devices/GPS.h"
 #include "../Devices/ms5611_i2c.h"
 mode_t g_mode;
-modeRC_t g_modeRC;
+mode_t g_modeRC;
 statusLock_t g_statusLock;
-
+statusLock_t g_statusLockRC;
 statusFlight_t g_statusFlight;
 statusLink_t g_statusLink;
 statusGS_t g_statusGS;
-
+statusCheck_t g_statusCheck;
 //static battery_t _bat;
 static void managerTask(void* param);
 //static void managerInitTask(void* param);
@@ -136,10 +136,10 @@ static void managerTask(void* param)
 				g_statusLock = motorLocked;
 		}
 		if(g_statusLock == motorUnlocking){
-			if(self_check() == 0)
+		//	if(self_check() == 0)
 				g_statusLock = motorUnlocked;
-			else
-				g_statusLock = motorLocked;
+		//	else
+		//		g_statusLock = motorLocked;
 		}
 		if(g_statusLock == motorUnlocked)
 			setLed(0, 200, 500);

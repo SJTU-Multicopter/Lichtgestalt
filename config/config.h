@@ -43,7 +43,7 @@
 #define ATT_CTRL_TASK_PERIOD_S 0.002f
 
 
-#define CMD_TASK_STACKSIZE            (2 * configMINIMAL_STACK_SIZE)
+#define CMD_TASK_STACKSIZE            (4 * configMINIMAL_STACK_SIZE)
 #define ADC_TASK_STACKSIZE            configMINIMAL_STACK_SIZE
 #define LED_TASK_STACKSIZE            configMINIMAL_STACK_SIZE
 #define SENSORS_TASK_STACKSIZE        configMINIMAL_STACK_SIZE

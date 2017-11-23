@@ -5,7 +5,7 @@
 #include "attitude_estimator.h"
 #include "motor_mixer.h"
 #include "../MessageTypes/type_methods.h"
-
+#include "../Commons/platform.h"
 #include "../Mathlib/comparison.h"
 #include "cmsis_os.h"
 #include "../config/config.h"
@@ -74,6 +74,7 @@ void attitude_controller(output_t *output,
 	output->moment.P = internal_err_pid(&pitchPID, e_w[1], ATT_CTRL_TASK_PERIOD_S);
 	output->moment.Y = internal_err_pid(&yawPID, e_w[2], ATT_CTRL_TASK_PERIOD_S);
 	output->thrust = attsp->thrust;
+	
 }
 static void attitude_control_Task( void *pvParameters )
 {
@@ -85,6 +86,9 @@ static void attitude_control_Task( void *pvParameters )
 		attspAcquire(&_attsp);
 		attitude_controller(&_output, &_att, &_attsp, ATT_CTRL_TASK_PERIOD_S);
 		_output.timestamp = xTaskGetTickCount ();
+		#if	XBEE_CMD
+	data2send[9] = _output.thrust*100;
+	#endif
 		xQueueOverwrite(output_q, &_output);
 	}
 }

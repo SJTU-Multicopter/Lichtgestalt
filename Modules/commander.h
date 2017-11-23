@@ -7,7 +7,8 @@ void commanderInit(void);
 //void attsp_reset(const att_t* state);
 BaseType_t  posSetpointAcquire(posCtrlsp_t *sp);
 
-//BaseType_t  altSetpointAcquire(altCtrlsp_t *sp);
+BaseType_t  altSetpointAcquire(altCtrlsp_t *sp);
+BaseType_t manEulerSetpointAcquire(manCtrlEulersp_t *sp);
 
 BaseType_t  manSetpointAcquire(manCtrlsp_t *sp);
 #endif

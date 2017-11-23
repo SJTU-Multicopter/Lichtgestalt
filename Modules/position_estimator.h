@@ -48,7 +48,7 @@ BaseType_t globalposBlockingAcquire(pos_t *pos);
 void position_estimation_start(void);
 void position_estimation_queue_init(void);
 void acc_filter_start(void);
-//BaseType_t accAcquire(accProcessed_t *acc);
+BaseType_t accAcquire(accProcessed_t *acc);
 //BaseType_t acc_d_cali_BlockingAcquire(float *acc);
 
 #endif

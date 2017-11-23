@@ -125,7 +125,11 @@ typedef struct manuelCtrlsp_s {
 	float thrust;
 	quaternion_t Q;
 } manCtrlsp_t;
-
+typedef struct manuelCtrlEulersp_s {
+	uint32_t timestamp;
+	float throttle;
+	vec3f_t euler;
+} manCtrlEulersp_t;
 typedef struct output_s {
 	uint32_t timestamp;
 	vec3f_t moment;
@@ -151,14 +155,7 @@ typedef enum modeVehicle_e {
 	modeTrj,
 	modeRC
 } mode_t;
-typedef enum modeRC_e {
 
-	modeRcRate,
-	modeRcMan,
-	modeRcAlt,
-	modeRcPos
-
-} modeRC_t;
 typedef enum statusLock_e {
 	motorLocked = 0,
 	motorUnlocking,
@@ -199,10 +196,12 @@ typedef struct statusCheck_s{
 	uint8_t pos;
 }statusCheck_t;
 extern mode_t g_mode;
-extern modeRC_t g_modeRC;
+extern mode_t g_modeRC;
 extern statusLock_t g_statusLock;
+extern statusLock_t g_statusLockRC;
 extern statusFlight_t g_statusFlight;
 extern statusLink_t g_statusLink;
 extern statusGS_t g_statusGS;
+extern statusCheck_t g_statusCheck;
 extern short data2send[18];
 #endif
